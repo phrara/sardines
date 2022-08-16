@@ -1,4 +1,6 @@
 # Sardines
+> The sardine are a decentralized system, which allows them to survive and evolve in the cruel nature.
+
 A decentralized storage network based on Golang
 <br>
 This project will consider the function of Filecoin and ipfs, adopt one of its cores,a P2P go-library called 
@@ -52,4 +54,5 @@ Once configured compeletly:
 $ ./sardines run
 ```
 
-> author phrara
+## Contributors
+
