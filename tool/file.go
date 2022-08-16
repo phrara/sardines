@@ -2,6 +2,7 @@ package tool
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 )
@@ -41,7 +42,7 @@ func (f *File) Size() int {
 }
 
 func WriteFile(b []byte, path string) error {
-	err := os.WriteFile(path, b, 02)
+	err := os.WriteFile(path, b, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -54,4 +55,35 @@ func LoadFile(path string) ([]byte, error) {
 		return nil, err
 	}
 	return file, nil
+}
+
+
+//判断文件夹是否存在
+func HasDir(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+ 
+//创建文件夹
+func CreateDir(path string) error {
+	exist, err := HasDir(path)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return errors.New("dir: `values` already exists")
+	} else {
+		err = os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
+	}
 }

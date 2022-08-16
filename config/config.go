@@ -18,13 +18,14 @@ import (
 var cpath string
 var kpath string
 var Ktab string
+var Dir string
 
 func init() {
-	cpath, _ = os.Getwd()
-	kpath = filepath.Join(cpath, "/values/priv_key")
-	Ktab = filepath.Join(cpath, "/values/key_tab.db")
-	cpath = filepath.Join(cpath, "/values/config.json")
-
+	wd, _ := os.Getwd()
+	Dir = filepath.Join(wd, "/values")
+	kpath = filepath.Join(Dir, "/priv_key")
+	Ktab = filepath.Join(Dir, "/key_tab.db")
+	cpath = filepath.Join(Dir, "/config.json")
 }
 
 type Config struct {

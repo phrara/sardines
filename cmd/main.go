@@ -3,12 +3,13 @@ package main
 import (
 	"bufio"
 	"context"
-	"sardines/config"
-	"sardines/core"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"sardines/config"
+	"sardines/core"
+	"sardines/tool"
 	"time"
 )
 
@@ -130,9 +131,15 @@ func cliArgsParse() bool {
 			fmt.Println(err)
 		}
 		return false
+	case "init":
+		if err := tool.CreateDir(config.Dir); err != nil {
+			fmt.Println(err)
+		}
+		return false
 	default:
 		fmt.Println("please use -help for more guidance!")
 		return false
 	}
 
 }
+
