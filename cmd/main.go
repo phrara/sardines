@@ -115,7 +115,7 @@ func cliArgsParse() bool {
 			fmt.Println("configure failed")
 		}
 		return false
-	case "run":
+	case "run": 
 		return true
 	case "gen-key":
 		c := (&config.Config{}).Load()

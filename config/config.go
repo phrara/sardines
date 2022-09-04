@@ -143,9 +143,9 @@ func New(username, pwd, ipAddr string, rs int64, bn string) (*Config, error) {
 		return nil, errors.New("the format of ipAddr is wrong")
 	}
 }
-
+ 
 func ipFormatCheck(ipAddr []string) bool {
-	compile, _ := regexp.Compile("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)")
+	compile, _ := regexp.Compile(`((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)`)
 	if b := compile.MatchString(ipAddr[0]); b {
 		port, err := strconv.ParseInt(ipAddr[1], 10, 64)
 		if err != nil || port < 0 || port > 65535 {

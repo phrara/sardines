@@ -8,7 +8,13 @@ require (
 	github.com/multiformats/go-multiaddr v0.5.0
 )
 
-require github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+require (
+	github.com/crackcomm/go-gitignore v0.0.0-20170627025303-887ab5e44cc3 // indirect
+	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+	github.com/ipfs/go-ipfs-files v0.0.9 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c // indirect
+)
 
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
@@ -36,6 +42,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/huin/goupnp v1.0.2 // indirect
 	github.com/ipfs/go-cid v0.2.0 // indirect
+	github.com/ipfs/go-ipfs-api v0.3.0
 	github.com/ipfs/go-ipfs-util v0.0.2 // indirect
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect

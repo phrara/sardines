@@ -42,6 +42,8 @@ type HostNode struct {
 	Ktab *KeyTable
 	// ipfs daemon
 	ipfs *exec.Cmd
+	// ipfs api
+	api *API
 }
 
 func GenerateNode() (*HostNode, error) {
@@ -91,7 +93,8 @@ func GenerateNode() (*HostNode, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	// 获取ipfs-api
+	node.api = NewAPI()
 
 	return node, nil
 }
