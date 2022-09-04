@@ -78,8 +78,10 @@ func (n *HostNode) RunIpfs() error {
 
 func (n *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
 	ticker := time.NewTicker(time.Second * period)
-	for t := range ticker.C {
-		fmt.Println("Router Distribution Start: ", t.Format("2006-01-02 15:04:05"))
+	for  {
+		<- ticker.C
+
+		//fmt.Println("Router Distribution Start: ", t.Format("2006-01-02 15:04:05"))
 		errNum := n.Serv.RouterDistribute()
 
 		// If the errNum > 33% of the sum of nodes,

@@ -35,7 +35,7 @@ func main() {
 		stdReader := bufio.NewReader(os.Stdin)
 
 		for {
-			fmt.Print("dctrl> ")
+			fmt.Print("sardines> ")
 			signal, err := stdReader.ReadString('\n')
 			if err != nil {
 				log.Println(err)
@@ -89,11 +89,13 @@ func cliArgsParse() bool {
 	var port string
 	var rs int64
 	var bsn string
+	var ip string
 
 	flag.StringVar(&username, "u", "root", "username, default is root")
 	flag.StringVar(&password, "p", "root", "password, default is root")
 	flag.StringVar(&bsn, "b", "", "Bootstrap Node")
 	flag.StringVar(&port, "P", "8082", "host's port, default is 8082")
+	flag.StringVar(&ip, "i", "0.0.0.0", "-i x.x.x.x")
 	flag.Int64Var(&rs, "r", 1, "random seed is used for generating your own key-pair, it must be a positive number")
 	flag.Parse()
 
@@ -104,7 +106,7 @@ func cliArgsParse() bool {
 
 	switch flag.Arg(0) {
 	case "conf":
-		c, err := config.New(username, password, "127.0.0.1:"+port, rs, bsn)
+		c, err := config.New(username, password, ip+":"+port, rs, bsn)
 		if err != nil {
 			fmt.Println(err)
 			return false
