@@ -1,14 +1,31 @@
 package tool
 
 import (
-	"github.com/libp2p/go-libp2p-core/peer"
+	"crypto/sha256"
+	"io"
 )
 
-func GetDistByXor(dst, src peer.ID) int {
+// GetPeerDist
+// To get distance between peers
+func GetPeerDist(dst, src string) int {
 	dst = dst[2:]
 	src = src[2:]
-	for i, v := range dst {
-		res := v ^ int32(src[i])
+	d, _ := HashEncode([]byte(dst))
+	s, _ := HashEncode([]byte(src))
+	return calcDist(d, s)
+}
+
+// GetFileDist
+// To get distance between peer and file
+func GetFileDist(pid, fid string) int {
+	p, _ := HashEncode([]byte(pid))
+	fid = fid[1:]
+	return calcDist(p, []byte(fid))
+}
+
+func calcDist(d, s []byte) int {
+	for i, v := range d {
+		res := v ^ s[i]
 		if res != 0 {
 			switch {
 			case res > 127:
@@ -33,4 +50,19 @@ func GetDistByXor(dst, src peer.ID) int {
 		}
 	}
 	return 0
+}
+
+func HashEncode(ctnt []byte, readers ...io.Reader) ([]byte, error) {
+	h := sha256.New()
+	if len(ctnt) != 0 {
+		h.Write(ctnt)
+	}
+	if len(readers) != 0 {
+		for _, v := range readers {
+			if _, err := io.Copy(h, v); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return h.Sum(nil), nil
 }

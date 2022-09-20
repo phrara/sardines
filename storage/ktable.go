@@ -1,4 +1,4 @@
-package core
+package storage
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ type KeyTable struct {
 	mu sync.Mutex
 }
 
-func initKeyTab() (*KeyTable, error) {
+func InitKeyTab() (*KeyTable, error) {
 
 	db, err := leveldb.OpenFile(config.Ktab, nil)
 	if err != nil {
@@ -53,6 +53,15 @@ func (k *KeyTable) Append(key string, cids []string) bool {
 	s := k.Get(key)
 	s = append(s, cids...)
 	return k.Put(key, s)
+}
+
+func (k *KeyTable) GetAll() string {
+	k.mu.Lock()
+	s, _ := k.db.GetSnapshot()
+	defer s.Release()
+	res := s.String()
+	k.mu.Unlock()
+	return res
 }
 
 func (k *KeyTable) split(val []byte) []string {

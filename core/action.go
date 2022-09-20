@@ -81,23 +81,27 @@ func (n *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
 	for  {
 		<- ticker.C
 
-		//fmt.Println("Router Distribution Start: ", t.Format("2006-01-02 15:04:05"))
+		// before routerdistributing 
 		errNum := n.Serv.RouterDistribute()
 
-		// If the errNum > 33% of the sum of nodes,
-		// we regard this as the bad situation of network, then try again after 8 sec;
-		// if the errNum > 75% of the sum of nodes,
-		// we regard this as the fatal error of network, stop the ticker
-		if errNum > n.Router.Sum()/4*3 {
-			fmt.Println("fatal Network error")
-			fmt.Println("Please restart your server")
-			ticker.Stop()
-			return
-		} else if errNum > n.Router.Sum()/3 {
-			fmt.Println("Bad Network Situation")
-			time.Sleep(time.Second * (period / 2))
-			n.Serv.RouterDistribute()
+		if len(BootstrapNodes) != 0 {
+			
+			// If the errNum > 33% of the sum of nodes,
+			// we regard this as the bad situation of network, then try again after 8 sec;
+			// if the errNum > 75% of the sum of nodes,
+			// we regard this as the fatal error of network, stop the ticker
+			if errNum > n.Router.Sum()/4*3 {
+				fmt.Println("fatal Network error")
+				fmt.Println("Please restart your server")
+				ticker.Stop()
+				return
+			} else if errNum > n.Router.Sum()/3 {
+				fmt.Println("Bad Network Situation")
+				time.Sleep(time.Second * (period / 2))
+				n.Serv.RouterDistribute()
+			}
 		}
+
 		select {
 		case <-ctx.Done():
 			ticker.Stop()

@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"sardines/tool"
 	"fmt"
-	"github.com/libp2p/go-libp2p-core/peerstore"
 	"io"
+	"sardines/tool"
 	"sync"
+
+	"github.com/libp2p/go-libp2p-core/peerstore"
 
 	"github.com/libp2p/go-libp2p-core/network"
 )
@@ -15,7 +16,6 @@ import (
 // Router table will be distributed periodically
 // When peers get the distributed router tables, they use then to update their own router tables
 // This automatically renew the router info of the decentralized network
-
 func RouterDistributeHandler(s network.Stream) {
 	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	serv.router.AddNode(pn)

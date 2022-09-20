@@ -9,14 +9,20 @@ import (
 
 type File struct {
 	Type    string `json:"type"`
-	Content string `json:"content"`
+	Content []byte `json:"content"`
+	FID string `json:"fid"`
 }
 
-func NewFile(typ, content string) *File {
+func NewFile(typ, fid string, content []byte) *File {
 	return &File{
 		Type:    typ,
 		Content: content,
+		FID: fid,
 	}
+}
+
+func (f *File) ID() string {
+	return f.FID
 }
 
 func (f *File) Wrap() []byte {
@@ -24,12 +30,10 @@ func (f *File) Wrap() []byte {
 	if err != nil {
 		return nil
 	}
-	wrap = append(wrap, '\n')
 	return wrap
 }
 
 func (f *File) Unwrap(wrap []byte) *File {
-	wrap = wrap[:len(wrap)-1]
 	err := json.Unmarshal(wrap, f)
 	if err != nil {
 		fmt.Println(err)

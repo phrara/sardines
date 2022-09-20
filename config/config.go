@@ -22,7 +22,7 @@ var Dir string
 
 func init() {
 	wd, _ := os.Getwd()
-	Dir = filepath.Join(wd, "/values")
+	Dir = filepath.Join(wd, "/data")
 	kpath = filepath.Join(Dir, "/priv_key")
 	Ktab = filepath.Join(Dir, "/key_tab.db")
 	cpath = filepath.Join(Dir, "/config.json")

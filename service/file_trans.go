@@ -13,7 +13,7 @@ func RecvFileHandler(s network.Stream) {
 
 	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	serv.router.AddNode(pn)
-	fmt.Println("Get a file from", pn.String())
+	// fmt.Println("Get a file from", pn.String())
 
 	p := &tool.Packet{}
 	header := make([]byte, tool.HEADER)
@@ -33,7 +33,7 @@ func RecvFileHandler(s network.Stream) {
 	}
 	p.Value = val
 
-	fmt.Println(tool.NewFile("", "").Unwrap(p.Value).Content)
+	// fmt.Println(tool.NewFile("", ).Unwrap(p.Value).Content)
 
 	acc := &tool.Packet{
 		Tag:   1,
@@ -45,51 +45,51 @@ func RecvFileHandler(s network.Stream) {
 
 }
 
-func (s *Service) SendFile(pn *tool.PeerNode, file string) bool {
+func (s *Service) SendFile(pn *tool.PeerNode, file *tool.File) bool {
+	
 	s.Host.Peerstore().AddAddrs(pn.ID(), pn.NodeInfo.Addrs, peerstore.PermanentAddrTTL)
 
-	if r := <-s.Ping(pn); r.Error == nil {
-		stream, err := s.Host.NewStream(context.Background(), pn.ID(), FT)
-		if err != nil {
-			fmt.Println(err)
-			return false
-		}
-		defer stream.Close()
-		f := tool.NewFile("txt", file).Wrap()
-		packet := &tool.Packet{
-			Tag:   2,
-			Len:   uint32(len(f)),
-			Value: f,
-		}
-		wrap, _ := packet.Wrap()
+	stream, err := s.Host.NewStream(context.Background(), pn.ID(), FT)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	defer stream.Close()
 
-		stream.Write(wrap)
+	f := file.Wrap()
+	packet := &tool.Packet{
+		Tag:   2,
+		Len:   uint32(len(f)),
+		Value: f,
+	}
+	wrap, _ := packet.Wrap()
 
-		acc := &tool.Packet{}
-		header := make([]byte, tool.HEADER)
-		_, err = io.ReadFull(stream, header)
-		if err != nil {
-			return false
-		}
-		err = acc.ParseHeader(header)
-		if err != nil || packet.Len == 0 {
-			return false
-		}
-		val := make([]byte, acc.Len)
-		_, err = io.ReadFull(stream, val)
-		if err != nil {
-			return false
-		}
-		acc.Value = val
+	stream.Write(wrap)
+	
 
-		if acc.ValString() == "acc" {
-			fmt.Println("send a file successfully")
-			return true
-		} else {
-			return false
-		}
+	acc := &tool.Packet{}
+	header := make([]byte, tool.HEADER)
+	_, err = io.ReadFull(stream, header)
+	if err != nil {
+		return false
+	}
+	err = acc.ParseHeader(header)
+	if err != nil || packet.Len == 0 {
+		return false
+	}
+	val := make([]byte, acc.Len)
+	_, err = io.ReadFull(stream, val)
+	if err != nil {
+		return false
+	}
+	acc.Value = val
 
+	if acc.ValString() == "acc" {
+		fmt.Println("send a file successfully")
+		return true
 	} else {
 		return false
 	}
+
+
 }

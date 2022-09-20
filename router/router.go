@@ -3,8 +3,8 @@ package router
 import (
 	"bytes"
 	"container/list"
-	"sardines/tool"
 	"fmt"
+	"sardines/tool"
 	"strconv"
 	"strings"
 	"sync"
@@ -39,7 +39,7 @@ func InitRouterTable(hn string) *Router {
 
 func (r *Router) AddNode(pn *tool.PeerNode) {
 	hnode := r.HostNode
-	dist := tool.GetDistByXor(hnode.ID(), pn.ID())
+	dist := tool.GetPeerDist(hnode.ID().String(), pn.ID().String())
 
 	if v, _ := r.table.Load(dist); v == nil {
 		l := list.New()
@@ -51,12 +51,11 @@ func (r *Router) AddNode(pn *tool.PeerNode) {
 			l.(*list.List).PushBack(pn)
 		}
 	}
-	return
 }
 
 func (r *Router) DelNode(pn *tool.PeerNode) {
 	hnode := r.HostNode
-	dist := tool.GetDistByXor(hnode.ID(), pn.ID())
+	dist := tool.GetPeerDist(hnode.ID().String(), pn.ID().String())
 
 	if v, _ := r.table.Load(dist); v == nil {
 		return
@@ -72,7 +71,7 @@ func (r *Router) DelNode(pn *tool.PeerNode) {
 
 func (r *Router) Contains(pn *tool.PeerNode) bool {
 	hnode := r.HostNode
-	dist := tool.GetDistByXor(hnode.ID(), pn.ID())
+	dist := tool.GetPeerDist(hnode.ID().String(), pn.ID().String())
 	if dist == 0 {
 		return true
 	}
@@ -115,6 +114,19 @@ func (r *Router) AllNodes() *list.List {
 				nodes.PushBack(e.Value)
 			}
 		}
+	}
+	return nodes
+}
+
+func (r *Router) GetNodes(dist int) *list.List {
+	nodes := list.New()
+	value, ok := r.table.Load(dist)
+	if !ok || value == nil {
+		return nil
+	}
+	l := value.(*list.List)
+	for i := l.Front(); i != nil; i = i.Next() {
+		nodes.PushBack(i.Value)
 	}
 	return nodes
 }

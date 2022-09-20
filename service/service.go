@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"sardines/router"
+	"sardines/storage"
 	"sardines/tool"
+
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"github.com/libp2p/go-libp2p/p2p/protocol/ping"
@@ -23,6 +25,7 @@ func init() {
 		Host:        nil,
 		router:      nil,
 		pingService: nil,
+		ktab: nil,
 	}
 }
 
@@ -30,12 +33,14 @@ type Service struct {
 	Host        host.Host
 	router      *router.Router
 	pingService *ping.PingService
+	ktab *storage.KeyTable
 }
 
-func NewService(host host.Host, r *router.Router) *Service {
+func GetService(host host.Host, r *router.Router, k *storage.KeyTable) *Service {
 	serv.Host = host
 	serv.router = r
 	serv.pingService = ping.NewPingService(host)
+	serv.ktab = k
 	return serv
 }
 

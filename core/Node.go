@@ -2,12 +2,13 @@ package core
 
 import (
 	"context"
+	"errors"
+	"os/exec"
 	"sardines/config"
 	"sardines/router"
 	"sardines/service"
+	"sardines/storage"
 	"sardines/tool"
-	"errors"
-	"os/exec"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -39,7 +40,7 @@ type HostNode struct {
 	// 路由表
 	Router *router.Router
 	// 倒排索引表
-	Ktab *KeyTable
+	Ktab *storage.KeyTable
 	// ipfs daemon
 	ipfs *exec.Cmd
 	// ipfs api
@@ -86,10 +87,10 @@ func GenerateNode() (*HostNode, error) {
 
 	// 初始化路由表
 	node.Router = router.InitRouterTable(node.NodeAddr.String())
-	// 初始化协议服务
-	node.Serv = service.NewService(node.Host, node.Router).ServiceHandlerRegister()
 	// 初始化倒排索引表
-	node.Ktab, err = initKeyTab()
+	node.Ktab, err = storage.InitKeyTab()
+	// 初始化协议服务
+	node.Serv = service.GetService(node.Host, node.Router, node.Ktab).ServiceHandlerRegister()
 	if err != nil {
 		return nil, err
 	}
