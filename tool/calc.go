@@ -2,6 +2,7 @@ package tool
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"io"
 )
 
@@ -20,7 +21,8 @@ func GetPeerDist(dst, src string) int {
 func GetFileDist(pid, fid string) int {
 	p, _ := HashEncode([]byte(pid))
 	fid = fid[1:]
-	return calcDist(p, []byte(fid))
+	b, _ := hex.DecodeString(fid)
+	return calcDist(p, b)
 }
 
 func calcDist(d, s []byte) int {

@@ -1,14 +1,14 @@
 package config
 
 import (
-	"sardines/tool"
 	"encoding/json"
-	"errors"
 	"log"
 	mrand "math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sardines/err"
+	"sardines/tool"
 	"strconv"
 	"strings"
 
@@ -18,6 +18,7 @@ import (
 var cpath string
 var kpath string
 var Ktab string
+var FS string
 var Dir string
 
 func init() {
@@ -26,6 +27,7 @@ func init() {
 	kpath = filepath.Join(Dir, "/priv_key")
 	Ktab = filepath.Join(Dir, "/key_tab.db")
 	cpath = filepath.Join(Dir, "/config.json")
+	FS = filepath.Join(Dir, "/filestore")
 }
 
 type Config struct {
@@ -105,7 +107,7 @@ func (c *Config) GenKey() error {
 		c.PrvKey = prvKey
 		return nil
 	} else {
-		return errors.New("the RandomSeed is not a positive number")
+		return err.ErrIllegalSeed
 	}
 }
 
@@ -140,7 +142,7 @@ func New(username, pwd, ipAddr string, rs int64, bn string) (*Config, error) {
 			BootstrapNode: bn,
 		}, nil
 	} else {
-		return nil, errors.New("the format of ipAddr is wrong")
+		return nil, err.ErrIllFormedIP
 	}
 }
  

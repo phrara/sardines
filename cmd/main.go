@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sardines/app"
 	"sardines/config"
 	"sardines/core"
 	"sardines/tool"
@@ -28,12 +29,13 @@ const LOGO = `
 
 func main() {
 
-	if b := cliArgsParse(); b {
+	if b := cliArgsParse(); b == 1 {
 		ctx, cancel := context.WithCancel(context.Background())
 		go run(ctx)
 
 		stdReader := bufio.NewReader(os.Stdin)
 
+		time.Sleep(time.Second * 2)
 		for {
 			fmt.Print("sardines> ")
 			signal, err := stdReader.ReadString('\n')
@@ -54,7 +56,8 @@ func main() {
 
 		}
 
-	} else {
+	} else if b == 2 {
+		app.App()
 		return
 	}
 
@@ -83,7 +86,7 @@ func run(ctx context.Context) {
 
 }
 
-func cliArgsParse() bool {
+func cliArgsParse() uint {
 
 	var username string
 	var password string
@@ -100,48 +103,46 @@ func cliArgsParse() bool {
 	flag.Int64Var(&rs, "r", 1, "random seed is used for generating your own key-pair, it must be a positive number")
 	flag.Parse()
 
-	if flag.NArg() == 0 {
-		fmt.Println("please use -help for more guidance!")
-		return false
-	}
-
 	switch flag.Arg(0) {
 	case "conf":
 		c, err := config.New(username, password, ip+":"+port, rs, bsn)
 		if err != nil {
 			fmt.Println(err)
-			return false
+			return 0
 		}
 		if b := c.Save(); b {
 			fmt.Println("configure successfully")
 		} else {
 			fmt.Println("configure failed")
 		}
-		return false
+		return 0
 	case "run": 
-		return true
+		return 1
 	case "gen-key":
 		c := (&config.Config{}).Load()
 		if c == nil {
 			fmt.Println("your node haven't been configure correctly, please use -help for more guidance")
-			return false
+			return 0
 		}
 		if err := c.GenKey(); err != nil {
 			fmt.Println(err)
-			return false
+			return 0
 		}
 		if err := c.SaveKey(); err != nil {
 			fmt.Println(err)
 		}
-		return false
+		return 0
 	case "init":
 		if err := tool.CreateDir(config.Dir); err != nil {
 			fmt.Println(err)
+			return 0
 		}
-		return false
+		if err := tool.CreateDir(config.FS); err != nil {
+			fmt.Println(err)
+		}
+		return 0
 	default:
-		fmt.Println("please use -help for more guidance!")
-		return false
+		return 2
 	}
 
 }

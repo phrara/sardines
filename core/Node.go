@@ -14,6 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 )
 
 // BootstrapNodes 引导节点
@@ -45,6 +46,8 @@ type HostNode struct {
 	ipfs *exec.Cmd
 	// ipfs api
 	api *API
+	// ipfs DHT
+	ipfsDHT *dht.IpfsDHT
 }
 
 func GenerateNode() (*HostNode, error) {
@@ -97,5 +100,8 @@ func GenerateNode() (*HostNode, error) {
 	// 获取ipfs-api
 	node.api = NewAPI()
 
+	ipfsDHT, _ := dht.New(node.Ctx, node.Host)
+	node.ipfsDHT = ipfsDHT
+	
 	return node, nil
 }

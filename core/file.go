@@ -1,19 +1,22 @@
 package core
 
 import (
-	"errors"
+	"encoding/hex"
+	"sardines/err"
+	"sardines/storage"
 	"sardines/tool"
 )
 
 func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
+	
 	if ctnt == "" && path == "" {
-		return "", errors.New("there is nothing to be stored")
+		return "", err.ErrNothingToStore
 	}
 	ctntBytes := []byte(ctnt)
 	if path != "" {
-		b, err := tool.LoadFile(path)
-		if err != nil {
-			return "", nil
+		b, er := tool.LoadFile(path)
+		if er != nil {
+			return "", er
 		}
 		ctntBytes = append(ctntBytes, b...)
 	}
@@ -23,9 +26,17 @@ func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}	
-	file := tool.NewFile("txt", "F"+string(fid), ctntBytes)
+	file := tool.NewFile("txt", "F"+hex.EncodeToString(fid), ctntBytes)
 
-	dist := tool.GetFileDist(h.NodeInfo.ID.String(), file.FID)
+	
+	// * store the file 
+	err2 := storage.StoreFileData(file)
+	if err2 != nil {
+		return "", err2
+	}
+
+	// * send to remote peer
+	dist := tool.GetFileDist(h.NodeInfo.ID.String(), file.ID())
 	l := h.Router.GetNodes(dist)
 	if l != nil {
 		for e := l.Front(); e != nil; e = e.Next() {
@@ -39,10 +50,9 @@ func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
 	
 	// TODO: update the keyTable 
 
+	
+	h.ipfsDHT.RoutingTable()
 
-	// TODO: store the file 
 
-
-
-	return "", nil
+	return file.ID(), nil
 }

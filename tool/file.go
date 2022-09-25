@@ -2,9 +2,9 @@ package tool
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
+	"sardines/err"
 )
 
 type File struct {
@@ -76,16 +76,16 @@ func HasDir(path string) (bool, error) {
  
 //创建文件夹
 func CreateDir(path string) error {
-	exist, err := HasDir(path)
-	if err != nil {
-		return err
+	exist, er := HasDir(path)
+	if er != nil {
+		return er
 	}
 	if exist {
-		return errors.New("dir: `values` already exists")
+		return err.ErrDirExists
 	} else {
-		err = os.Mkdir(path, os.ModePerm)
-		if err != nil {
-			return err
+		er = os.Mkdir(path, os.ModePerm)
+		if er != nil {
+			return er
 		} else {
 			return nil
 		}
