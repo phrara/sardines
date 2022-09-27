@@ -11,10 +11,10 @@ import (
 	"sardines/tool"
 
 	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/multiformats/go-multiaddr"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/multiformats/go-multiaddr"
 )
 
 // BootstrapNodes 引导节点
@@ -53,8 +53,9 @@ type HostNode struct {
 func GenerateNode() (*HostNode, error) {
 
 	// 读取配置
-	c := (&config.Config{}).LoadAll()
-	if c == nil {
+	c := &config.Config{}
+	err2 := c.LoadAll()
+	if err2 != nil {
 		return nil, errors.New("your node haven't been configure correctly, please use -help for more guidance")
 	}
 	node := new(HostNode)
@@ -89,7 +90,7 @@ func GenerateNode() (*HostNode, error) {
 	node.NodeAddr = addrs[0]
 
 	// 初始化路由表
-	node.Router = router.InitRouterTable(node.NodeAddr.String())
+	node.Router = router.New(node.Host)
 	// 初始化倒排索引表
 	node.Ktab, err = storage.InitKeyTab()
 	// 初始化协议服务
@@ -102,6 +103,6 @@ func GenerateNode() (*HostNode, error) {
 
 	ipfsDHT, _ := dht.New(node.Ctx, node.Host)
 	node.ipfsDHT = ipfsDHT
-	
+
 	return node, nil
 }

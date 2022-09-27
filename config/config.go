@@ -47,22 +47,19 @@ func (c *Config) Save() bool {
 	b, _ := json.Marshal(*c)
 	err := tool.WriteFile(b, cpath)
 	if err != nil {
-		log.Fatal(err)
 		return false
 	}
 	return true
 }
 
-func (c *Config) LoadAll() *Config {
-	data, err := tool.LoadFile(cpath)
-	if err != nil {
-		log.Fatal(err)
-		return nil
+func (c *Config) LoadAll() error {
+	data, err2 := tool.LoadFile(cpath)
+	if err2 != nil {
+		return err2
 	}
-	err = json.Unmarshal(data, c)
-	if err != nil {
-		log.Fatal(err)
-		return nil
+	err2 = json.Unmarshal(data, c)
+	if err2 != nil {
+		return err2
 	}
 	pk, _ := tool.LoadFile(kpath)
 	if len(pk) == 0 {
@@ -72,22 +69,20 @@ func (c *Config) LoadAll() *Config {
 	} else {
 		c.PrvKey, _ = crypto.UnmarshalPrivateKey(pk)
 	}
-	return c
+	return nil
 }
 
-func (c *Config) Load() *Config {
-	data, err := tool.LoadFile(cpath)
-	if err != nil {
-		log.Fatal(err)
-		return nil
+func (c *Config) Load() error {
+	data, err2 := tool.LoadFile(cpath)
+	if err2 != nil {
+		return err2
 	}
-	err = json.Unmarshal(data, c)
-	if err != nil {
-		log.Fatal(err)
-		return nil
+	err2 = json.Unmarshal(data, c)
+	if err2 != nil {
+		return err2
 	}
 	c.PrvKey = nil
-	return c
+	return nil
 }
 
 func (c *Config) AddrString() string {
@@ -145,7 +140,7 @@ func New(username, pwd, ipAddr string, rs int64, bn string) (*Config, error) {
 		return nil, err.ErrIllFormedIP
 	}
 }
- 
+
 func ipFormatCheck(ipAddr []string) bool {
 	compile, _ := regexp.Compile(`((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)`)
 	if b := compile.MatchString(ipAddr[0]); b {

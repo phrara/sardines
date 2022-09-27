@@ -10,44 +10,45 @@ import (
 	"time"
 )
 
-func (n *HostNode) JoinNetwork() {
-	n.Router.Clear()
+func (h *HostNode) JoinNetwork() <-chan int {
+	msg := make(chan int, 1)
 	for _, bn := range BootstrapNodes {
 		node := bn
 		if node == nil {
-			fmt.Println("Bootstrap Node is empty, this node could be the initial node")
+			//fmt.Println("Bootstrap Node is empty, this node could be the initial node")
 			continue
 		}
 		go func() {
-			res := <-n.Serv.Ping(node)
+			res := <-h.Serv.Ping(node)
 			if res.Error != nil {
-				fmt.Println("can not connect Bootstrap Node")
+				msg <- 0
 				return
 			} else {
 				// ping 通了
 				// 发出加入申请
-				if b := n.Serv.JoinApply(node); b {
-					fmt.Println("Join Network Successfully")
-					n.Router.AddNode(node)
+				if b := h.Serv.JoinApply(node); b {
+					msg <- 1
+					h.Router.AddNode(node)
 				} else {
-					fmt.Println("Join Network Failed")
+					msg <- 0
 				}
 			}
 		}()
 	}
+	msg <- 1
+	return msg
 }
 
-func (n *HostNode) Close() error {
-	err := n.Host.Close()
-	n.Router.Clear()
-	n.Ktab.Close()
-	if n.ipfs != nil {
-		n.ipfs.Process.Kill()
+func (h *HostNode) Close() error {
+	err := h.Host.Close()
+	h.Ktab.Close()
+	if h.ipfs != nil {
+		h.ipfs.Process.Kill()
 	}
 	return err
 }
 
-func (n *HostNode) RunIpfs() error {
+func (h *HostNode) RunIpfs() error {
 	_, err := exec.Command("ipfs", "init").Output()
 	if err != nil {
 		return err
@@ -65,7 +66,7 @@ func (n *HostNode) RunIpfs() error {
 		return err3
 	} else {
 		if strings.Contains(string(b), "ready") {
-			n.ipfs = cmd
+			h.ipfs = cmd
 			cmd.Wait()
 		} else {
 			cmd.Process.Kill()
@@ -76,29 +77,29 @@ func (n *HostNode) RunIpfs() error {
 
 }
 
-func (n *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
+func (h *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
 	ticker := time.NewTicker(time.Second * period)
-	for  {
-		<- ticker.C
+	for {
+		<-ticker.C
 
-		// before routerdistributing 
-		errNum := n.Serv.RouterDistribute()
+		// before routerdistributing
+		errNum := h.Serv.RouterDistribute()
 
 		if len(BootstrapNodes) != 0 {
-			
+
 			// If the errNum > 33% of the sum of nodes,
 			// we regard this as the bad situation of network, then try again after 8 sec;
 			// if the errNum > 75% of the sum of nodes,
 			// we regard this as the fatal error of network, stop the ticker
-			if errNum > n.Router.Sum()/4*3 {
+			if errNum > h.Router.Sum()/4*3 {
 				fmt.Println("fatal Network error")
 				fmt.Println("Please restart your server")
 				ticker.Stop()
 				return
-			} else if errNum > n.Router.Sum()/3 {
+			} else if errNum > h.Router.Sum()/3 {
 				fmt.Println("Bad Network Situation")
 				time.Sleep(time.Second * (period / 2))
-				n.Serv.RouterDistribute()
+				h.Serv.RouterDistribute()
 			}
 		}
 
@@ -111,7 +112,7 @@ func (n *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
 	}
 }
 
-func (n *HostNode) autoPeriod(nodeNum int) time.Duration {
+func (h *HostNode) autoPeriod(nodeNum int) time.Duration {
 	switch {
 	case nodeNum >= 100:
 		return 60
@@ -128,10 +129,10 @@ func (n *HostNode) autoPeriod(nodeNum int) time.Duration {
 // The unit of argument `period` is second.
 // The argument `period` will be affective if `auto` is true,
 // and it'll be useless if `auto` is false.
-func (n *HostNode) RouterDistributeOn(auto bool, period int, ctx context.Context) {
+func (h *HostNode) RouterDistributeOn(auto bool, period int, ctx context.Context) {
 	if auto {
-		go n.routerDistribute(ctx, n.autoPeriod(n.Router.Sum()))
+		go h.routerDistribute(ctx, h.autoPeriod(h.Router.Sum()))
 	} else {
-		go n.routerDistribute(ctx, time.Duration(period))
+		go h.routerDistribute(ctx, time.Duration(period))
 	}
 }

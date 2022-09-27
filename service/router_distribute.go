@@ -7,19 +7,19 @@ import (
 	"sardines/tool"
 	"sync"
 
-	"github.com/libp2p/go-libp2p-core/peerstore"
-
-	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 )
 
 // Router Distribution
 // Router table will be distributed periodically
 // When peers get the distributed router tables, they use then to update their own router tables
 // This automatically renew the router info of the decentralized network
+
 func RouterDistributeHandler(s network.Stream) {
 	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	serv.router.AddNode(pn)
-	fmt.Println("Get a distributed router table from", pn.String())
+
+	//fmt.Println("Get a distributed router table from", pn.String())
 
 	p := &tool.Packet{}
 	header := make([]byte, tool.HEADER)
@@ -44,7 +44,7 @@ func RouterDistributeHandler(s network.Stream) {
 		return
 	} else {
 		//Parse the raw data and use it to update the local router table
-		fmt.Println("remote router info is: \n", p.ValString())
+		//fmt.Println("remote router info is: \n", p.ValString())
 		data := serv.router.ParseData(p.ValString())
 		serv.router.Update(data)
 	}
@@ -57,10 +57,7 @@ func (s *Service) RouterDistribute() (errNum int) {
 	localRouter := serv.router.RawData()
 	fmt.Println("recent router table:\n", string(localRouter))
 	nodes := serv.router.AllNodes()
-	for e := nodes.Front(); e != nil; e = e.Next() {
-		pn := e.Value.(*tool.PeerNode)
-
-		s.Host.Peerstore().AddAddrs(pn.ID(), pn.NodeInfo.Addrs, peerstore.PermanentAddrTTL)
+	for _, pn := range nodes {
 
 		wg.Add(1)
 		go func(p *tool.PeerNode) {

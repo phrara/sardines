@@ -1,7 +1,7 @@
 package tool
 
 import (
-	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
 )
 
@@ -10,6 +10,13 @@ type PeerNode struct {
 	NodeInfo *peer.AddrInfo
 	// p2p节点标识
 	NodeAddr multiaddr.Multiaddr
+}
+
+func NewPeerNode(info *peer.AddrInfo, addr multiaddr.Multiaddr) *PeerNode {
+	return &PeerNode{
+		NodeInfo: info,
+		NodeAddr: addr,
+	}
 }
 
 func (p *PeerNode) String() string {

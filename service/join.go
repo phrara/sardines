@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
-	"sardines/tool"
 	"fmt"
 	"github.com/libp2p/go-libp2p-core/network"
-	"github.com/libp2p/go-libp2p-core/peerstore"
 	"io"
+	"sardines/tool"
 )
 
 func JoinApplyHandler(s network.Stream) {
@@ -27,7 +26,7 @@ func JoinApplyHandler(s network.Stream) {
 }
 
 func (s *Service) JoinApply(bootstrapNode *tool.PeerNode) bool {
-	s.Host.Peerstore().AddAddrs(bootstrapNode.ID(), bootstrapNode.NodeInfo.Addrs, peerstore.PermanentAddrTTL)
+	s.router.AddNode(bootstrapNode)
 
 	stream, err := s.Host.NewStream(context.Background(), bootstrapNode.ID(), JOIN)
 	if err != nil {

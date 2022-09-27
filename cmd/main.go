@@ -10,6 +10,7 @@ import (
 	"sardines/app"
 	"sardines/config"
 	"sardines/core"
+	"sardines/err"
 	"sardines/tool"
 	"time"
 )
@@ -31,16 +32,16 @@ func main() {
 
 	if b := cliArgsParse(); b == 1 {
 		ctx, cancel := context.WithCancel(context.Background())
-		go run(ctx)
+		go Run(ctx)
 
 		stdReader := bufio.NewReader(os.Stdin)
 
 		time.Sleep(time.Second * 2)
 		for {
 			fmt.Print("sardines> ")
-			signal, err := stdReader.ReadString('\n')
-			if err != nil {
-				log.Println(err)
+			signal, err2 := stdReader.ReadString('\n')
+			if err2 != nil {
+				log.Println(err2)
 				return
 			}
 			switch signal {
@@ -63,17 +64,21 @@ func main() {
 
 }
 
-func run(ctx context.Context) {
+func Run(ctx context.Context) {
 	fmt.Printf("\u001B[1;35m%s\u001B[0m\n", LOGO)
-	hnode, err := core.GenerateNode()
-	if err != nil {
-		fmt.Println(err)
+	hnode, er := core.GenerateNode()
+	if er != nil {
+		fmt.Println(er)
 		return
 	}
 
 	fmt.Printf("\x1b[1;34mHost: %s\x1b[0m\n", hnode.NodeAddr.String())
 
-	hnode.JoinNetwork()
+	msg := hnode.JoinNetwork()
+	if f := <-msg; f == 0 {
+		fmt.Println(err.ErrJoinNetwork)
+		return
+	}
 	time.Sleep(time.Second * 2)
 	//fmt.Println("recent router table:\n", string(hnode.Router.RawData()))
 
@@ -116,12 +121,13 @@ func cliArgsParse() uint {
 			fmt.Println("configure failed")
 		}
 		return 0
-	case "run": 
+	case "Run":
 		return 1
 	case "gen-key":
-		c := (&config.Config{}).Load()
-		if c == nil {
-			fmt.Println("your node haven't been configure correctly, please use -help for more guidance")
+		c := &config.Config{}
+		err := c.Load()
+		if err != nil {
+			fmt.Printf("your node haven't been configure correctly, please use -help for more guidance, err: %v", err)
 			return 0
 		}
 		if err := c.GenKey(); err != nil {
@@ -146,4 +152,3 @@ func cliArgsParse() uint {
 	}
 
 }
-
