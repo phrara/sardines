@@ -25,7 +25,7 @@ func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	file := tool.NewFile("txt", "F"+hex.EncodeToString(fid), ctntBytes)
+	file := tool.NewFile("txt", "SF"+hex.EncodeToString(fid), ctntBytes)
 
 	// * store the file
 	err2 := storage.StoreFileData(file)
@@ -37,7 +37,7 @@ func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
 
 	// TODO: update the keyTable
 
-	h.ipfsDHT.RoutingTable()
+	//h.DHT.RoutingTable()
 
 	return file.ID(), nil
 }

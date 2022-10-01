@@ -47,7 +47,7 @@ type HostNode struct {
 	// ipfs api
 	api *API
 	// ipfs DHT
-	ipfsDHT *dht.IpfsDHT
+	DHT *dht.IpfsDHT
 }
 
 func GenerateNode() (*HostNode, error) {
@@ -94,15 +94,15 @@ func GenerateNode() (*HostNode, error) {
 	// 初始化倒排索引表
 	node.Ktab, err = storage.InitKeyTab()
 	// 初始化协议服务
-	node.Serv = service.GetService(node.Host, node.Router, node.Ktab).ServiceHandlerRegister()
+	node.Serv = service.New(node.Host, node.Router, node.Ktab).ServiceHandlerRegister()
 	if err != nil {
 		return nil, err
 	}
 	// 获取ipfs-api
-	node.api = NewAPI()
+	//node.api = NewAPI()
 
-	ipfsDHT, _ := dht.New(node.Ctx, node.Host)
-	node.ipfsDHT = ipfsDHT
+	DHT, _ := dht.New(node.Ctx, node.Host)
+	node.DHT = DHT
 
 	return node, nil
 }

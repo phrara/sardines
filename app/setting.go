@@ -14,7 +14,7 @@ import (
 func SettingTab() fyne.CanvasObject {
 	c := container.New(layout.NewVBoxLayout())
 
-	lab := widget.NewLabel("Configuration")
+	lab := widget.NewLabel("节点配置")
 	lab.Alignment = fyne.TextAlignCenter
 
 	ipEntry := widget.NewEntry()
@@ -37,14 +37,14 @@ func SettingTab() fyne.CanvasObject {
 	}
 
 	cForm := widget.NewForm()
-	cForm.Append("IP Address", ipEntry)
-	cForm.Append("Listening Port", portEntry)
-	cForm.Append("Random Seed", rsEntry)
-	cForm.Append("Bootstrap Node", bsEntry)
+	cForm.Append("IP地址", ipEntry)
+	cForm.Append("端口", portEntry)
+	cForm.Append("私钥种子", rsEntry)
+	cForm.Append("引导节点", bsEntry)
 
 	btns := container.New(layout.NewHBoxLayout())
 	// 保存配置
-	submit := widget.NewButton("Submit", func() {
+	submit := widget.NewButton("保存", func() {
 		conf.IP = ipEntry.Text
 		conf.Port = portEntry.Text
 		conf.BootstrapNode = bsEntry.Text
@@ -54,14 +54,14 @@ func SettingTab() fyne.CanvasObject {
 			return
 		}
 		if b := conf.Save(); b {
-			ShowInfo("configure successfully")
+			ShowInfo("配置成功")
 		} else {
 			ShowErr(err.ErrConf)
 		}
 
 	})
 
-	keyLab := widget.NewLabel("Priv Key")
+	keyLab := widget.NewLabel("私钥")
 	keyLab.Alignment = fyne.TextAlignCenter
 	keyEntry := widget.NewEntry()
 	keyEntry.Disable()
@@ -69,7 +69,7 @@ func SettingTab() fyne.CanvasObject {
 	keyEntry.Wrapping = fyne.TextWrapBreak
 
 	// 生成密钥对
-	genKey := widget.NewButton("Gen Key", func() {
+	genKey := widget.NewButton("生成私钥", func() {
 		co := &config.Config{}
 		er = co.Load()
 		if er != nil {
@@ -86,7 +86,7 @@ func SettingTab() fyne.CanvasObject {
 			ShowErr(err2)
 			return
 		}
-		ShowInfo("gen key-pair successfully")
+		ShowInfo("生成成功")
 		raw, _ := co.PrvKey.Raw()
 		keyEntry.SetText(hex.EncodeToString(raw))
 	})
@@ -95,7 +95,7 @@ func SettingTab() fyne.CanvasObject {
 	btns.Add(widget.NewLabel("                                               "))
 	btns.Add(genKey)
 
-	md := widget.NewRichTextFromMarkdown("**please do not lose or share you own private key!**")
+	md := widget.NewRichTextFromMarkdown("**请妥善保管您的私钥!**")
 
 	c.Add(lab)
 	c.Add(cForm)

@@ -1,6 +1,8 @@
 package app
 
-import "fyne.io/fyne/v2/dialog"
+import (
+	"fyne.io/fyne/v2/dialog"
+)
 
 func ShowErr(e error) {
 	dialog.ShowError(e, w)

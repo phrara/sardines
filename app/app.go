@@ -2,6 +2,7 @@ package app
 
 import (
 	"image/color"
+	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,48 +12,54 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-const (
-	ON  = true
-	OFF = false
-)
+func init() {
+	os.Setenv("FYNE_FONT", "./rsrc/STXIHEI.TTF")
+	icon, _ = fyne.LoadResourceFromPath("./rsrc/4.jpg")
+}
 
 var (
-	CX        float32 = 810
+	CX        float32 = 830
 	CY        float32 = 550
 	CD        float32 = 27
 	w         fyne.Window
 	circleOn  *canvas.Circle
 	circleOff *canvas.Circle
 	hostEntry *widget.Entry
+	icon      fyne.Resource
 )
 
 func App() {
 
 	a := app.New()
-	a.Settings().SetTheme(theme.DefaultTheme())
+
+	a.Settings().SetTheme(theme.LightTheme())
 
 	w = a.NewWindow("sardines")
 	w.Resize(fyne.Size{Width: 930, Height: 620})
+	w.CenterOnScreen()
+	w.SetFixedSize(true)
+	w.SetIcon(icon)
 
 	c := container.NewWithoutLayout()
 
 	hostEntry = widget.NewEntry()
 	hostEntry.Disable()
-	hostEntry.SetPlaceHolder("haven't run yet")
+	hostEntry.SetPlaceHolder("未启动")
 	hostInfo := widget.NewForm()
-	hostInfo.Resize(fyne.NewSize(750, 30))
+	hostInfo.Resize(fyne.NewSize(770, 30))
 	hostInfo.Move(fyne.NewPos(20, CY-5))
-	hostInfo.Append("Host", hostEntry)
+	hostInfo.Append("ID", hostEntry)
 	initCircle()
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Panel", PanelTab()),
-		container.NewTabItem("Setting", SettingTab()),
-		container.NewTabItem("Peers", PeersTab()),
+		container.NewTabItem("控制面板", PanelTab()),
+		container.NewTabItem("配置", SettingTab()),
+		container.NewTabItem("对等点", PeersTab()),
+		container.NewTabItem("文件", FilesTab()),
 	)
 	tabs.SetTabLocation(container.TabLocationLeading)
 	tabs.Resize(fyne.Size{
-		Width:  890,
+		Width:  895,
 		Height: 450,
 	})
 
@@ -70,7 +77,7 @@ func initCircle() {
 		R: 69,
 		G: 196,
 		B: 190,
-		A: 1,
+		A: 255,
 	})
 	circleOn.StrokeColor = color.Gray{Y: 0x99}
 	circleOn.StrokeWidth = 2
@@ -81,7 +88,7 @@ func initCircle() {
 		R: 255,
 		G: 0,
 		B: 0,
-		A: 1,
+		A: 255,
 	})
 	circleOff.StrokeColor = color.Gray{Y: 0x99}
 	circleOff.StrokeWidth = 2

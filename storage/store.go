@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
 	"sardines/config"
 	"sardines/err"
@@ -8,14 +10,14 @@ import (
 )
 
 func StoreFileData(file *tool.File) error {
-	subDir := file.ID()[24:26]
+	subDir := file.ID()[2:5]
 	fileDir := filepath.Join(config.FS, "/"+subDir)
 	er := tool.CreateDir(fileDir)
 	if er != nil && er != err.ErrDirExists {
 		return er
 	}
 	filePath := filepath.Join(fileDir, "/"+file.ID())
-	err2 := tool.WriteFile(file.Content, filePath)
+	err2 := tool.WriteFile(file.Raw(), filePath)
 	if err2 != nil {
 		return err2
 	}
@@ -23,7 +25,7 @@ func StoreFileData(file *tool.File) error {
 }
 
 func LoadFileData(fid string) (*tool.File, error) {
-	subDir := fid[24:26]
+	subDir := fid[2:5]
 	filePath := filepath.Join(config.FS, "/"+subDir, "/"+fid)
 	b, err2 := tool.LoadFile(filePath)
 	if err2 != nil {
@@ -31,4 +33,26 @@ func LoadFileData(fid string) (*tool.File, error) {
 	}
 	f := tool.NewFile("txt", fid, b)
 	return f, nil
-} 
+}
+
+func FileStoreTree() map[string][]string {
+	res := make(map[string][]string)
+	res[""] = []string{"FileStore"}
+
+	dirs, _ := os.ReadDir(config.FS)
+	for _, d := range dirs {
+		if d.IsDir() {
+			res["FileStore"] = append(res["FileStore"], d.Name())
+			files, er := os.ReadDir(filepath.Join(config.FS, d.Name()))
+			if er != nil {
+				fmt.Println(er)
+			}
+			for _, f := range files {
+				if !f.IsDir() {
+					res[d.Name()] = append(res[d.Name()], f.Name())
+				}
+			}
+		}
+	}
+	return res
+}

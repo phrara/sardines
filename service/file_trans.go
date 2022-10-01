@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"sardines/tool"
 	"fmt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"io"
+	"sardines/tool"
 )
 
 func RecvFileHandler(s network.Stream) {
@@ -46,7 +46,7 @@ func RecvFileHandler(s network.Stream) {
 }
 
 func (s *Service) SendFile(pn *tool.PeerNode, file *tool.File) bool {
-	
+
 	s.Host.Peerstore().AddAddrs(pn.ID(), pn.NodeInfo.Addrs, peerstore.PermanentAddrTTL)
 
 	stream, err := s.Host.NewStream(context.Background(), pn.ID(), FT)
@@ -56,7 +56,7 @@ func (s *Service) SendFile(pn *tool.PeerNode, file *tool.File) bool {
 	}
 	defer stream.Close()
 
-	f := file.Wrap()
+	f := file.Raw()
 	packet := &tool.Packet{
 		Tag:   2,
 		Len:   uint32(len(f)),
@@ -65,7 +65,6 @@ func (s *Service) SendFile(pn *tool.PeerNode, file *tool.File) bool {
 	wrap, _ := packet.Wrap()
 
 	stream.Write(wrap)
-	
 
 	acc := &tool.Packet{}
 	header := make([]byte, tool.HEADER)
@@ -90,6 +89,5 @@ func (s *Service) SendFile(pn *tool.PeerNode, file *tool.File) bool {
 	} else {
 		return false
 	}
-
 
 }

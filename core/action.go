@@ -15,7 +15,7 @@ func (h *HostNode) JoinNetwork() <-chan int {
 	for _, bn := range BootstrapNodes {
 		node := bn
 		if node == nil {
-			//fmt.Println("Bootstrap Node is empty, this node could be the initial node")
+			msg <- 1
 			continue
 		}
 		go func() {
@@ -35,7 +35,6 @@ func (h *HostNode) JoinNetwork() <-chan int {
 			}
 		}()
 	}
-	msg <- 1
 	return msg
 }
 

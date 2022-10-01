@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -11,24 +9,26 @@ import (
 func PeersTab() fyne.CanvasObject {
 	c := container.NewWithoutLayout()
 
-	lab := widget.NewLabel("Peer List")
+	lab := widget.NewLabel("对等点列表")
 	lab.Alignment = fyne.TextAlignCenter
-	lab.Move(fyne.NewPos(375, 0))
+	lab.Move(fyne.NewPos(410, 0))
 
 	list := widget.NewList(
 		length,
 		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
+			e := widget.NewEntry()
+			e.Disable()
+			return e
 		},
 		updateItem)
 	list.Move(fyne.NewPos(20, 30))
 	list.Resize(fyne.NewSize(750, 500))
 
-	btnUP := widget.NewButton(`^`, func() {
+	btnUP := widget.NewButton(`↑`, func() {
 		list.ScrollToTop()
 	})
 	btnUP.Alignment = widget.ButtonAlignCenter
-	btnUP.Move(fyne.NewPos(800, 480))
+	btnUP.Move(fyne.NewPos(800, 450))
 	btnUP.Resize(fyne.NewSize(30, 20))
 
 	c.Add(lab)
@@ -40,9 +40,10 @@ func PeersTab() fyne.CanvasObject {
 
 func length() int {
 	if hNode != nil {
+		//fmt.Println(hNode.Router.Sum())
 		return hNode.Router.Sum()
 	} else {
-		return 10
+		return 1
 	}
 }
 
@@ -50,9 +51,10 @@ func updateItem(i widget.ListItemID, o fyne.CanvasObject) {
 	str := ""
 	if hNode != nil {
 		nodes := hNode.Router.AllNodes()
+		//fmt.Println(nodes)
 		if nodes[i] != nil {
-			str = fmt.Sprintf("%d: %s", i, nodes[i].String())
+			str = nodes[i].String()
 		}
 	}
-	o.(*widget.Label).SetText(str)
+	o.(*widget.Entry).SetText(str)
 }

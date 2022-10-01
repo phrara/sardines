@@ -1,8 +1,8 @@
 package tool
 
 import (
+	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"os"
 	"sardines/err"
 )
@@ -21,24 +21,33 @@ func NewFile(typ, fid string, content []byte) *File {
 	}
 }
 
+func NewFileFromContent(typ string, content []byte) *File {
+	fid, e := HashEncode(content)
+	if e != nil {
+		return nil
+	}
+	return NewFile(typ, "SF"+hex.EncodeToString(fid), content)
+}
+
+func NewFileFromRaw(raw []byte) (*File, error) {
+	f := new(File)
+	err2 := json.Unmarshal(raw, f)
+	if err2 != nil {
+		return nil, err2
+	}
+	return f, nil
+}
+
 func (f *File) ID() string {
 	return f.FID
 }
 
-func (f *File) Wrap() []byte {
+func (f *File) Raw() []byte {
 	wrap, err2 := json.Marshal(*f)
 	if err2 != nil {
 		return nil
 	}
 	return wrap
-}
-
-func (f *File) Unwrap(wrap []byte) *File {
-	err2 := json.Unmarshal(wrap, f)
-	if err2 != nil {
-		fmt.Println(err2)
-	}
-	return f
 }
 
 func (f *File) Size() int {

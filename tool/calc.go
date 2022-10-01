@@ -20,7 +20,7 @@ func GetPeerDist(dst, src string) int {
 // To get distance between peer and file
 func GetFileDist(pid, fid string) int {
 	p, _ := HashEncode([]byte(pid))
-	fid = fid[1:]
+	fid = fid[2:]
 	b, _ := hex.DecodeString(fid)
 	return calcDist(p, b)
 }
