@@ -1,19 +1,16 @@
 package app
 
 import (
-	"image/color"
-	"os"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"image/color"
 )
 
 func init() {
-	os.Setenv("FYNE_FONT", "./rsrc/STXIHEI.TTF")
 	icon, _ = fyne.LoadResourceFromPath("./rsrc/4.jpg")
 }
 
@@ -54,9 +51,9 @@ func App() {
 
 	tabs := container.NewAppTabs(
 		container.NewTabItem("控制面板", PanelTab()),
-		container.NewTabItem("配置", SettingTab()),
-		container.NewTabItem("对等点", PeersTab()),
 		container.NewTabItem("文件", FilesTab()),
+		container.NewTabItem("对等点", PeersTab()),
+		container.NewTabItem("配置", SettingTab()),
 	)
 	tabs.SetTabLocation(container.TabLocationLeading)
 	tabs.Resize(fyne.Size{

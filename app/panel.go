@@ -80,6 +80,7 @@ func btnUpload() *widget.Button {
 						return
 					}
 					ShowData("上传成功", fid)
+					fileTree.Refresh()
 				}
 			}, w)
 			fileDialog.Resize(fyne.NewSize(900, 600))

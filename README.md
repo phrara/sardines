@@ -4,7 +4,7 @@
 A decentralized storage network based on Golang
 <br>
 This project will consider the function of Filecoin and ipfs, adopt one of its cores,a P2P go-library called 
-*<u>libp2p</u>*.This wonderful library will be the fundamental part of our project,moreover, the file uploading and downloading will use the ipfs-go-API.
+*<u>libp2p</u>*.This wonderful library will be the fundamental part of our project.
 <br>
 ***
 The project will be advanced by an tech called `Searchable Encryption` to build a more reliable decentralized storage network.
@@ -16,43 +16,28 @@ The project will be advanced by an tech called `Searchable Encryption` to build 
 3. p2p JoinApply 
 4. p2p RouterDistribution 
 5. p2p Inverted index table is done, it used `goleveldb` package, as we know, leveldb is a high-performance key-value storage library, however, this package is written in Go.
-6. CLI(Command-line Interface) Some necessary tool-chains 
-```go
-hn, _ := core.GenerateNode()
-{
-	hn.JoinNetwork()
-	hn.RouterDistributeOn(false, 10)
-	// hn.RouterDistributeOn(true, 0)
-	hn.RouterDistributeOff()
-}
-select{}
+6. Windows Desktop UI (CLI has been deprecated)
+   1. panel
+   2. files
+   3. peers
+   4. setting(config)
+
+
+## Build
+> make sure you've already got the `make.exe` tool.
+
+Download the code and check the `Makefile`, then:
+```shell
+sardins$ make build
 ```
+
 
 
 ## Configuration 
-Two configs are needed for running the server,they should be stored in directory `./values`. One is `config.json`, the other is `priv_key`. <br>
-You can use cli tool-chain to configure:
-```shell
-$ ./sardines init
-
-$ ./sardines -u root - p root -P 8082 -r 823 -b /ip4/x.x.x.x/tcp/8082/p2p/Qm... conf
-
-$ ./sardines gen-key
-```
-Also, all of them can be made by API:
-```go
-c, err := config.New()
-if err != nil {
-	return
-}    
-c.Save()
-```
+Check the Setting tab in the desktop App to configure your host node
 
 ## Run
-Once configured compeletly:
-```shell
-$ ./sardines run
-```
+Check the Panel tab in the desktop App to run
 
 ## Contributors
 

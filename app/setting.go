@@ -27,9 +27,7 @@ func SettingTab() fyne.CanvasObject {
 
 	conf := &config.Config{}
 	er := conf.Load()
-	if er != nil {
-		ShowErr(er)
-	} else {
+	if er == nil {
 		ipEntry.SetText(conf.IP)
 		portEntry.SetText(conf.Port)
 		rsEntry.SetText(strconv.FormatInt(conf.RandomSeed, 10))

@@ -7,6 +7,10 @@ import (
 	"sardines/storage"
 )
 
+var (
+	fileTree *widget.Tree
+)
+
 func FilesTab() fyne.CanvasObject {
 	c := container.NewWithoutLayout()
 
@@ -18,6 +22,7 @@ func FilesTab() fyne.CanvasObject {
 	tree.Move(fyne.NewPos(220, 50))
 	tree.Resize(fyne.NewSize(750, 500))
 	tree.OpenAllBranches()
+	fileTree = tree
 
 	c.Add(tree)
 	c.Add(lab)
