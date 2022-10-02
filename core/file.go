@@ -1,35 +1,22 @@
 package core
 
 import (
-	"encoding/hex"
-	"sardines/err"
 	"sardines/storage"
 	"sardines/tool"
 )
 
-func (h *HostNode) StoreFile(ctnt, path string) (string, error) {
+func (h *HostNode) UploadFile(file *tool.File) (string, error) {
 
-	if ctnt == "" && path == "" {
-		return "", err.ErrNothingToStore
-	}
-	ctntBytes := []byte(ctnt)
-	if path != "" {
-		b, er := tool.LoadFile(path)
-		if er != nil {
-			return "", er
-		}
-		ctntBytes = append(ctntBytes, b...)
-	}
-
-	fid, err := tool.HashEncode(ctntBytes)
-	if err != nil {
-		return "", err
-	}
-	file := tool.NewFile("txt", "SF"+hex.EncodeToString(fid), ctntBytes)
-
-	// * store the file
+	// store the file locally
 	err2 := storage.StoreFileData(file)
 	if err2 != nil {
+		return "", err2
+	}
+
+	// update the manifest
+	err2 = storage.UpdateManifest(file.Entry)
+	if err2 != nil {
+		storage.DeleteFileData(file)
 		return "", err2
 	}
 

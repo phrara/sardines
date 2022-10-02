@@ -18,9 +18,10 @@ func init() {
 }
 
 var (
-	CX        float32 = 830
-	CY        float32 = 550
+	CX        float32 = 1030
+	CY        float32 = 650
 	CD        float32 = 27
+	title     float32 = 600
 	w         fyne.Window
 	circleOn  *canvas.Circle
 	circleOff *canvas.Circle
@@ -35,7 +36,7 @@ func App() {
 	a.Settings().SetTheme(theme.LightTheme())
 
 	w = a.NewWindow("sardines")
-	w.Resize(fyne.Size{Width: 930, Height: 620})
+	w.Resize(fyne.Size{Width: 1280, Height: 720})
 	w.CenterOnScreen()
 	w.SetFixedSize(true)
 	w.SetIcon(icon)
@@ -47,7 +48,7 @@ func App() {
 	hostEntry.SetPlaceHolder("未启动")
 	hostInfo := widget.NewForm()
 	hostInfo.Resize(fyne.NewSize(770, 30))
-	hostInfo.Move(fyne.NewPos(20, CY-5))
+	hostInfo.Move(fyne.NewPos(CX-800, CY-5))
 	hostInfo.Append("ID", hostEntry)
 	initCircle()
 

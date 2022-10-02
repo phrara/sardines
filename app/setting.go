@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"sardines/config"
 	"sardines/err"
@@ -12,10 +11,11 @@ import (
 )
 
 func SettingTab() fyne.CanvasObject {
-	c := container.New(layout.NewVBoxLayout())
+	c := container.NewWithoutLayout()
 
 	lab := widget.NewLabel("节点配置")
 	lab.Alignment = fyne.TextAlignCenter
+	lab.Move(fyne.NewPos(title, 0))
 
 	ipEntry := widget.NewEntry()
 	ipEntry.SetText("0.0.0.0")
@@ -41,8 +41,9 @@ func SettingTab() fyne.CanvasObject {
 	cForm.Append("端口", portEntry)
 	cForm.Append("私钥种子", rsEntry)
 	cForm.Append("引导节点", bsEntry)
+	cForm.Move(fyne.NewPos(220, 50))
+	cForm.Resize(fyne.NewSize(750, 500))
 
-	btns := container.New(layout.NewHBoxLayout())
 	// 保存配置
 	submit := widget.NewButton("保存", func() {
 		conf.IP = ipEntry.Text
@@ -56,17 +57,22 @@ func SettingTab() fyne.CanvasObject {
 		if b := conf.Save(); b {
 			ShowInfo("配置成功")
 		} else {
-			ShowErr(err.ErrConf)
+			ShowErr(err.ConfFailed)
 		}
 
 	})
+	submit.Move(fyne.NewPos(title-200, 250))
+	submit.Resize(fyne.NewSize(80, 40))
 
 	keyLab := widget.NewLabel("私钥")
 	keyLab.Alignment = fyne.TextAlignCenter
+	keyLab.Move(fyne.NewPos(title, 300))
 	keyEntry := widget.NewEntry()
 	keyEntry.Disable()
 	keyEntry.MultiLine = true
 	keyEntry.Wrapping = fyne.TextWrapBreak
+	keyEntry.Move(fyne.NewPos(220, 350))
+	keyEntry.Resize(fyne.NewSize(800, 150))
 
 	// 生成密钥对
 	genKey := widget.NewButton("生成私钥", func() {
@@ -90,16 +96,15 @@ func SettingTab() fyne.CanvasObject {
 		raw, _ := co.PrvKey.Raw()
 		keyEntry.SetText(hex.EncodeToString(raw))
 	})
-	btns.Add(widget.NewLabel("                              "))
-	btns.Add(submit)
-	btns.Add(widget.NewLabel("                                               "))
-	btns.Add(genKey)
+	genKey.Move(fyne.NewPos(title+100, 250))
+	genKey.Resize(fyne.NewSize(80, 40))
 
 	md := widget.NewRichTextFromMarkdown("**请妥善保管您的私钥!**")
 
 	c.Add(lab)
 	c.Add(cForm)
-	c.Add(btns)
+	c.Add(submit)
+	c.Add(genKey)
 	c.Add(keyLab)
 	c.Add(keyEntry)
 	c.Add(md)

@@ -76,7 +76,7 @@ func Run(ctx context.Context) {
 
 	msg := hnode.JoinNetwork()
 	if f := <-msg; f == 0 {
-		fmt.Println(err.ErrJoinNetwork)
+		fmt.Println(err.JoinNetworkFailed)
 		return
 	}
 	time.Sleep(time.Second * 2)

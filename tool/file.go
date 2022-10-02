@@ -7,26 +7,32 @@ import (
 	"sardines/err"
 )
 
-type File struct {
-	Type    string `json:"type"`
-	Content []byte `json:"content"`
-	FID     string `json:"fid"`
+type Entry struct {
+	Origin string `json:"origin"`
+	FID    string `json:"fid"`
 }
 
-func NewFile(typ, fid string, content []byte) *File {
+type File struct {
+	Entry
+	Content []byte `json:"content"`
+}
+
+func NewFile(origin, fid string, content []byte) *File {
 	return &File{
-		Type:    typ,
 		Content: content,
-		FID:     fid,
+		Entry: Entry{
+			Origin: origin,
+			FID:    fid,
+		},
 	}
 }
 
-func NewFileFromContent(typ string, content []byte) *File {
+func NewFileFromContent(origin string, content []byte) *File {
 	fid, e := HashEncode(content)
 	if e != nil {
 		return nil
 	}
-	return NewFile(typ, "SF"+hex.EncodeToString(fid), content)
+	return NewFile(origin, "SF"+hex.EncodeToString(fid), content)
 }
 
 func NewFileFromRaw(raw []byte) (*File, error) {
@@ -54,6 +60,10 @@ func (f *File) Size() int {
 	return len(f.Content)
 }
 
+func (f *File) Info() string {
+	return f.Origin + " | " + f.FID
+}
+
 func WriteFile(b []byte, path string) error {
 	err2 := os.WriteFile(path, b, os.ModePerm)
 	if err2 != nil {
@@ -70,7 +80,7 @@ func LoadFile(path string) ([]byte, error) {
 	return file, nil
 }
 
-//判断文件夹是否存在
+// HasDir 判断文件夹是否存在
 func HasDir(path string) (bool, error) {
 	_, err2 := os.Stat(path)
 	if err2 == nil {
@@ -82,14 +92,14 @@ func HasDir(path string) (bool, error) {
 	return false, err2
 }
 
-//创建文件夹
+// CreateDir 创建文件夹
 func CreateDir(path string) error {
 	exist, er := HasDir(path)
 	if er != nil {
 		return er
 	}
 	if exist {
-		return err.ErrDirExists
+		return err.DirExists
 	} else {
 		er = os.Mkdir(path, os.ModePerm)
 		if er != nil {

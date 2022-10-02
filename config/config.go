@@ -15,11 +15,14 @@ import (
 	"github.com/libp2p/go-libp2p-core/crypto"
 )
 
-var cpath string
-var kpath string
-var Ktab string
-var FS string
-var Dir string
+var (
+	cpath    string
+	kpath    string
+	Ktab     string
+	FS       string
+	Dir      string
+	Manifest string
+)
 
 func init() {
 	wd, _ := os.Getwd()
@@ -28,6 +31,8 @@ func init() {
 	Ktab = filepath.Join(Dir, "/key_tab.db")
 	cpath = filepath.Join(Dir, "/config.json")
 	FS = filepath.Join(Dir, "/filestore")
+	Manifest = filepath.Join(Dir, "/manifest.json")
+
 }
 
 type Config struct {
@@ -102,7 +107,7 @@ func (c *Config) GenKey() error {
 		c.PrvKey = prvKey
 		return nil
 	} else {
-		return err.ErrIllegalSeed
+		return err.IllegalSeed
 	}
 }
 
@@ -137,7 +142,7 @@ func New(username, pwd, ipAddr string, rs int64, bn string) (*Config, error) {
 			BootstrapNode: bn,
 		}, nil
 	} else {
-		return nil, err.ErrIllFormedIP
+		return nil, err.IllFormedIP
 	}
 }
 

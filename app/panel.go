@@ -5,28 +5,26 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"sardines/core"
 	"sardines/err"
-	"sardines/storage"
 	"sardines/tool"
 )
 
 var (
 	ctx    context.Context    = nil
 	cancel context.CancelFunc = nil
-	hNode  *core.HostNode
+	btnW   float32            = 500
+	btnH   float32            = 40
+	btnX   float32            = 350
+	// 节点句柄
+	hNode *core.HostNode
 )
 
-func PanelTab() fyne.CanvasObject {
-	c := container.New(layout.NewVBoxLayout())
-
-	lab := widget.NewLabel("节点控制")
-	lab.Alignment = fyne.TextAlignCenter
-
-	btnOn := widget.NewButton("启动", func() {
-		if cancel != nil {
+// 启动按钮
+func btnOn() *widget.Button {
+	btn := widget.NewButton("启动", func() {
+		if cancel != nil || hNode != nil {
 			return
 		}
 		ctx, cancel = context.WithCancel(context.Background())
@@ -36,10 +34,16 @@ func PanelTab() fyne.CanvasObject {
 			turnOn(hNode.NodeAddr.String())
 		}
 	})
-	btnOn.Alignment = widget.ButtonAlignCenter
+	btn.Alignment = widget.ButtonAlignCenter
+	btn.Move(fyne.NewPos(btnX, 50))
+	btn.Resize(fyne.NewSize(btnW, btnH))
+	return btn
+}
 
-	btnOff := widget.NewButton("关闭", func() {
-		if cancel != nil {
+// 关闭按钮
+func btnOff() *widget.Button {
+	btn := widget.NewButton("关闭", func() {
+		if cancel != nil && hNode != nil {
 			Ensure("are you sure?", func(b bool) {
 				if b {
 					cancel()
@@ -49,35 +53,60 @@ func PanelTab() fyne.CanvasObject {
 			})
 		}
 	})
-	btnOff.Alignment = widget.ButtonAlignCenter
+	btn.Alignment = widget.ButtonAlignCenter
+	btn.Move(fyne.NewPos(btnX, 100))
+	btn.Resize(fyne.NewSize(btnW, btnH))
+	return btn
+}
 
-	btnUpload := widget.NewButton("上传文件", func() {
+func btnUpload() *widget.Button {
+	btn := widget.NewButton("上传文件", func() {
 
-		dialog.ShowFileOpen(func(closer fyne.URIReadCloser, err2 error) {
+		if cancel != nil && hNode != nil {
+			fileDialog := dialog.NewFileOpen(func(closer fyne.URIReadCloser, err2 error) {
+				if closer != nil {
+					p := closer.URI().Path()
+					o := closer.URI().Name()
+					content, e := tool.LoadFile(p)
+					if e != nil {
+						ShowErr(e)
+						return
+					}
+					file := tool.NewFileFromContent(o, content)
 
-			p := closer.URI().Path()
-			t := closer.URI().Extension()
-			content, e := tool.LoadFile(p)
-			if e != nil {
-				ShowErr(e)
-				return
-			}
-			file := tool.NewFileFromContent(t, content)
-			e = storage.StoreFileData(file)
-			if e != nil {
-				ShowErr(e)
-				return
-			}
-			ShowInfo("文件上传成功")
+					fid, e := hNode.UploadFile(file)
+					if e != nil {
+						ShowErr(e)
+						return
+					}
+					ShowData("上传成功", fid)
+				}
+			}, w)
+			fileDialog.Resize(fyne.NewSize(900, 600))
+			fileDialog.Show()
 
-		}, w)
+		} else {
+			ShowErr(err.NodeNotStarted)
+		}
+
 	})
-	btnUpload.Alignment = widget.ButtonAlignCenter
+	btn.Alignment = widget.ButtonAlignCenter
+	btn.Move(fyne.NewPos(btnX, 150))
+	btn.Resize(fyne.NewSize(btnW, btnH))
+	return btn
+}
+
+func PanelTab() fyne.CanvasObject {
+	c := container.NewWithoutLayout()
+
+	lab := widget.NewLabel("节点控制")
+	lab.Alignment = fyne.TextAlignCenter
+	lab.Move(fyne.NewPos(title, 0))
 
 	c.Add(lab)
-	c.Add(btnOn)
-	c.Add(btnOff)
-	c.Add(btnUpload)
+	c.Add(btnOn())
+	c.Add(btnOff())
+	c.Add(btnUpload())
 
 	return c
 }
@@ -91,7 +120,7 @@ func Run(ctx context.Context, msg chan<- bool) {
 		return
 	}
 	if f := <-h.JoinNetwork(); f == 0 {
-		ShowErr(err.ErrJoinNetwork)
+		ShowErr(err.JoinNetworkFailed)
 		hNode = nil
 		msg <- false
 		return
@@ -100,6 +129,6 @@ func Run(ctx context.Context, msg chan<- bool) {
 	msg <- true
 
 	<-ctx.Done()
-	h.Close()
-
+	hNode.Close()
+	hNode = nil
 }

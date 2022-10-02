@@ -2,8 +2,9 @@ package storage
 
 import (
 	"bytes"
-	"sardines/config"
 	"fmt"
+	"github.com/syndtr/goleveldb/leveldb/opt"
+	"sardines/config"
 	"strings"
 	"sync"
 
@@ -17,11 +18,14 @@ type KeyTable struct {
 
 func InitKeyTab() (*KeyTable, error) {
 
-	db, err := leveldb.OpenFile(config.Ktab, nil)
+	db, err := leveldb.OpenFile(config.Ktab, &opt.Options{
+		BlockSize:           64 * opt.KiB,
+		CompactionTotalSize: 12 * opt.MiB,
+	})
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &KeyTable{
 		db: db,
 		mu: sync.Mutex{},
@@ -84,7 +88,3 @@ func (k *KeyTable) Close() {
 		fmt.Println(err)
 	}
 }
-
-
-
-

@@ -11,7 +11,7 @@ func PeersTab() fyne.CanvasObject {
 
 	lab := widget.NewLabel("对等点列表")
 	lab.Alignment = fyne.TextAlignCenter
-	lab.Move(fyne.NewPos(410, 0))
+	lab.Move(fyne.NewPos(title, 0))
 
 	list := widget.NewList(
 		length,
@@ -21,14 +21,14 @@ func PeersTab() fyne.CanvasObject {
 			return e
 		},
 		updateItem)
-	list.Move(fyne.NewPos(20, 30))
+	list.Move(fyne.NewPos(220, 50))
 	list.Resize(fyne.NewSize(750, 500))
 
 	btnUP := widget.NewButton(`↑`, func() {
 		list.ScrollToTop()
 	})
 	btnUP.Alignment = widget.ButtonAlignCenter
-	btnUP.Move(fyne.NewPos(800, 450))
+	btnUP.Move(fyne.NewPos(1000, 470))
 	btnUP.Resize(fyne.NewSize(30, 20))
 
 	c.Add(lab)

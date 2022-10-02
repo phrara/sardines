@@ -10,13 +10,17 @@ import (
 func FilesTab() fyne.CanvasObject {
 	c := container.NewWithoutLayout()
 
+	lab := widget.NewLabel("文件树")
+	lab.Alignment = fyne.TextAlignCenter
+	lab.Move(fyne.NewPos(title, 0))
+
 	tree := widget.NewTree(childUIDs, isBranch, createNode, updateNode)
-	tree.Move(fyne.NewPos(20, 30))
+	tree.Move(fyne.NewPos(220, 50))
 	tree.Resize(fyne.NewSize(750, 500))
 	tree.OpenAllBranches()
 
 	c.Add(tree)
-
+	c.Add(lab)
 	return c
 }
 
@@ -31,8 +35,18 @@ func isBranch(uid string) (b bool) {
 	return
 }
 func createNode(branch bool) fyne.CanvasObject {
-	return widget.NewLabel("Template Object")
+	e := widget.NewEntry()
+	e.Disable()
+	e.TextStyle = fyne.TextStyle{
+		Bold:      false,
+		Italic:    false,
+		Monospace: true,
+		Symbol:    false,
+		TabWidth:  0,
+	}
+
+	return e
 }
 func updateNode(uid string, branch bool, node fyne.CanvasObject) {
-	node.(*widget.Label).SetText(uid)
+	node.(*widget.Entry).SetText(uid)
 }
