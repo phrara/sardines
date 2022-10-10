@@ -10,7 +10,7 @@ import (
 type FileList shell.LsLink
 
 type API struct {
-	sh *shell.Shell 
+	sh *shell.Shell
 }
 
 func NewAPI() *API {
@@ -19,7 +19,6 @@ func NewAPI() *API {
 		sh: sh,
 	}
 }
-
 
 func (a *API) Upload(data []byte) (string, error) {
 	hash, err := a.sh.Add(bytes.NewBuffer(data))
@@ -34,6 +33,7 @@ func (a *API) Download(hash string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rc.Close()
 	b, err2 := io.ReadAll(rc)
 	if err2 != nil {
 		return nil, err2
@@ -54,4 +54,3 @@ func (a *API) List(hash string) ([]*FileList, error) {
 	}
 	return res, nil
 }
-

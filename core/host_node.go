@@ -11,7 +11,6 @@ import (
 	"sardines/tool"
 
 	"github.com/libp2p/go-libp2p"
-	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
@@ -46,8 +45,6 @@ type HostNode struct {
 	ipfs *exec.Cmd
 	// ipfs api
 	api *API
-	// ipfs DHT
-	DHT *dht.IpfsDHT
 }
 
 func GenerateNode() (*HostNode, error) {
@@ -92,17 +89,14 @@ func GenerateNode() (*HostNode, error) {
 	// 初始化路由表
 	node.Router = router.New(node.Host)
 	// 初始化倒排索引表
-	node.Ktab, err = storage.InitKeyTab()
+	node.Ktab, err = storage.NewKeyTab(config.Ktab)
 	// 初始化协议服务
 	node.Serv = service.New(node.Host, node.Router, node.Ktab).ServiceHandlerRegister()
 	if err != nil {
 		return nil, err
 	}
 	// 获取ipfs-api
-	//node.api = NewAPI()
-
-	DHT, _ := dht.New(node.Ctx, node.Host)
-	node.DHT = DHT
+	node.api = NewAPI()
 
 	return node, nil
 }

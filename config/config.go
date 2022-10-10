@@ -12,14 +12,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p/core/crypto"
 )
 
 var (
 	cpath    string
 	kpath    string
 	Ktab     string
-	FS       string
 	Dir      string
 	Manifest string
 )
@@ -30,7 +29,6 @@ func init() {
 	kpath = filepath.Join(Dir, "/priv_key")
 	Ktab = filepath.Join(Dir, "/key_tab.db")
 	cpath = filepath.Join(Dir, "/config.json")
-	FS = filepath.Join(Dir, "/filestore")
 	Manifest = filepath.Join(Dir, "/manifest.json")
 
 }

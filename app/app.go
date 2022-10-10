@@ -24,11 +24,12 @@ var (
 	circleOff *canvas.Circle
 	hostEntry *widget.Entry
 	icon      fyne.Resource
+	a         fyne.App
 )
 
 func App() {
 
-	a := app.New()
+	a = app.New()
 
 	a.Settings().SetTheme(theme.LightTheme())
 
@@ -51,14 +52,14 @@ func App() {
 
 	tabs := container.NewAppTabs(
 		container.NewTabItem("控制面板", PanelTab()),
-		container.NewTabItem("文件", FilesTab()),
+		container.NewTabItem("文件", FilesTreeTab()),
 		container.NewTabItem("对等点", PeersTab()),
 		container.NewTabItem("配置", SettingTab()),
 	)
 	tabs.SetTabLocation(container.TabLocationLeading)
 	tabs.Resize(fyne.Size{
-		Width:  895,
-		Height: 450,
+		Width:  1080,
+		Height: 650,
 	})
 
 	c.Add(circleOn)

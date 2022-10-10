@@ -9,6 +9,14 @@ import (
 	"sardines/core"
 	"sardines/err"
 	"sardines/tool"
+	"strings"
+)
+
+type Mode int
+
+const (
+	KW Mode = iota
+	CID
 )
 
 var (
@@ -18,7 +26,8 @@ var (
 	btnH   float32            = 40
 	btnX   float32            = 350
 	// 节点句柄
-	hNode *core.HostNode
+	hNode      *core.HostNode
+	searchMode Mode
 )
 
 // 启动按钮
@@ -59,6 +68,7 @@ func btnOff() *widget.Button {
 	return btn
 }
 
+// 上传文件
 func btnUpload() *widget.Button {
 	btn := widget.NewButton("上传文件", func() {
 
@@ -74,12 +84,12 @@ func btnUpload() *widget.Button {
 					}
 					file := tool.NewFileFromContent(o, content)
 
-					fid, e := hNode.UploadFile(file)
+					fid, k, e := hNode.UploadFile(file)
 					if e != nil {
 						ShowErr(e)
 						return
 					}
-					ShowData("上传成功", fid)
+					ShowData("上传成功", fid+":"+k)
 					fileTree.Refresh()
 				}
 			}, w)
@@ -97,6 +107,75 @@ func btnUpload() *widget.Button {
 	return btn
 }
 
+// 检索文件
+func search() fyne.CanvasObject {
+	c := container.NewVBox()
+	c.Move(fyne.NewPos(btnX, 200))
+	c.Resize(fyne.NewSize(btnW, btnH*2))
+
+	combo := widget.NewSelect([]string{"Keyword", "CID"}, func(value string) {
+		switch value {
+		case "CID":
+			searchMode = CID
+		case "Keyword":
+			searchMode = KW
+
+		}
+	})
+	combo.SetSelectedIndex(0)
+
+	e := widget.NewEntry()
+
+	btnSearch := widget.NewButton("检索文件", func() {
+		if cancel != nil && hNode != nil {
+			words := e.Text
+			words = strings.Trim(words, " ")
+			if words == "" || words == " " {
+				return
+			}
+			files := make([]*tool.File, 0, 5)
+			switch searchMode {
+			case CID:
+				f, err2 := hNode.SearchFileByCid(words)
+				if err2 != nil {
+					ShowErr(err2)
+				}
+				files = append(files, f)
+			case KW:
+				files = hNode.SearchFileByKey(words)
+
+			}
+
+			if files != nil && len(files) != 0 {
+				subWin := a.NewWindow(e.Text)
+				subWin.Resize(fyne.NewSize(900, 600))
+				subWin.CenterOnScreen()
+				subTab := container.NewDocTabs()
+
+				for i, file := range files {
+					tabItem := FileTab(i, file)
+					subTab.Append(tabItem)
+				}
+
+				subTab.SetTabLocation(container.TabLocationTop)
+				subTab.Resize(fyne.NewSize(890, 590))
+
+				subWin.SetContent(subTab)
+				subWin.Show()
+			} else {
+				ShowInfo("nothing could be found")
+			}
+		} else {
+			ShowErr(err.NodeNotStarted)
+		}
+	})
+
+	c.Add(e)
+	c.Add(combo)
+	c.Add(btnSearch)
+	return c
+}
+
 func PanelTab() fyne.CanvasObject {
 	c := container.NewWithoutLayout()
 
@@ -108,6 +187,7 @@ func PanelTab() fyne.CanvasObject {
 	c.Add(btnOn())
 	c.Add(btnOff())
 	c.Add(btnUpload())
+	c.Add(search())
 
 	return c
 }
@@ -129,7 +209,12 @@ func Run(ctx context.Context, msg chan<- bool) {
 	hNode = h
 	msg <- true
 
-	<-ctx.Done()
+	// keytab distribute
+	errC := hNode.KeyTableDistributeOn(false, 15, ctx)
+	for err2 := range errC {
+		ShowErr(err2)
+	}
+
 	hNode.Close()
 	hNode = nil
 }

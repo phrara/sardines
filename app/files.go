@@ -11,7 +11,7 @@ var (
 	fileTree *widget.Tree
 )
 
-func FilesTab() fyne.CanvasObject {
+func FilesTreeTab() fyne.CanvasObject {
 	c := container.NewWithoutLayout()
 
 	lab := widget.NewLabel("文件树")
@@ -24,8 +24,15 @@ func FilesTab() fyne.CanvasObject {
 	tree.OpenAllBranches()
 	fileTree = tree
 
+	refBtn := widget.NewButton("刷新", func() {
+		tree.Refresh()
+	})
+	refBtn.Resize(fyne.NewSize(40, 20))
+	refBtn.Move(fyne.NewPos(1000, 60))
+
 	c.Add(tree)
 	c.Add(lab)
+	c.Add(refBtn)
 	return c
 }
 

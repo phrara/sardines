@@ -2,24 +2,19 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"github.com/libp2p/go-libp2p-core/network"
-	"io"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/phrara/go-util/tlv"
 	"sardines/tool"
 )
 
 func JoinApplyHandler(s network.Stream) {
 	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
-	fmt.Println("receive a join application from", pn.String())
+	// fmt.Println("receive a join application from", pn.String())
 
 	// 节点加入路由表
 	serv.router.AddNode(pn)
 
-	p := &tool.Packet{
-		Tag:   1,
-		Len:   3,
-		Value: []byte("acc"),
-	}
+	p := tlv.New(1, []byte("acc"))
 	data, _ := p.Wrap()
 	s.Write(data)
 
@@ -28,33 +23,20 @@ func JoinApplyHandler(s network.Stream) {
 func (s *Service) JoinApply(bootstrapNode *tool.PeerNode) bool {
 	s.router.AddNode(bootstrapNode)
 
-	stream, err := s.Host.NewStream(context.Background(), bootstrapNode.ID(), JOIN)
-	if err != nil {
-		fmt.Println(err)
+	stream, err2 := s.Host.NewStream(context.Background(), bootstrapNode.ID(), JOIN)
+	if err2 != nil {
 		return false
 	}
-	// parse the header
-	packet := &tool.Packet{}
-	header := make([]byte, tool.HEADER)
-	_, err = io.ReadFull(stream, header)
-	if err != nil {
+
+	packet := &tlv.Packet{}
+	err2 = packet.Load(stream)
+	if err2 != nil {
 		return false
 	}
-	err = packet.ParseHeader(header)
-	if err != nil || packet.Len == 0 {
-		return false
-	}
-	// get body
-	val := make([]byte, packet.Len)
-	_, err = io.ReadFull(stream, val)
-	if err != nil {
-		return false
-	}
-	packet.Value = val
 
 	defer stream.Close()
 
-	if packet.ValString() == "acc" {
+	if packet.Tag == 1 {
 		return true
 	} else {
 		return false

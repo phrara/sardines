@@ -1,15 +1,15 @@
 package tool
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"os"
 	"sardines/err"
+	"strings"
 )
 
 type Entry struct {
 	Origin string `json:"origin"`
-	FID    string `json:"fid"`
+	CID    string `json:"cid"`
 }
 
 type File struct {
@@ -17,22 +17,19 @@ type File struct {
 	Content []byte `json:"content"`
 }
 
-func NewFile(origin, fid string, content []byte) *File {
+func NewFile(origin, cid string, content []byte) *File {
 	return &File{
 		Content: content,
 		Entry: Entry{
 			Origin: origin,
-			FID:    fid,
+			CID:    cid,
 		},
 	}
 }
 
 func NewFileFromContent(origin string, content []byte) *File {
-	fid, e := HashEncode(content)
-	if e != nil {
-		return nil
-	}
-	return NewFile(origin, "SF"+hex.EncodeToString(fid), content)
+
+	return NewFile(origin, "", content)
 }
 
 func NewFileFromRaw(raw []byte) (*File, error) {
@@ -45,7 +42,7 @@ func NewFileFromRaw(raw []byte) (*File, error) {
 }
 
 func (f *File) ID() string {
-	return f.FID
+	return f.CID
 }
 
 func (f *File) Raw() []byte {
@@ -60,8 +57,13 @@ func (f *File) Size() int {
 	return len(f.Content)
 }
 
-func (f *File) Info() string {
-	return f.Origin + " | " + f.FID
+func (f *File) IsText() bool {
+	if strings.Contains(f.Origin, "jpg") {
+		return false
+	} else if strings.Contains(f.Origin, "png") {
+		return false
+	}
+	return true
 }
 
 func WriteFile(b []byte, path string) error {

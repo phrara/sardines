@@ -3,9 +3,9 @@ package core
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os/exec"
+	"sardines/err"
 	"strings"
 	"time"
 )
@@ -48,9 +48,9 @@ func (h *HostNode) Close() error {
 }
 
 func (h *HostNode) RunIpfs() error {
-	_, err := exec.Command("ipfs", "init").Output()
-	if err != nil {
-		return err
+	_, er := exec.Command("ipfs", "init").Output()
+	if er != nil {
+		return er
 	}
 	cmd := exec.Command("ipfs", "daemon")
 	rc, err2 := cmd.StdoutPipe()
@@ -76,35 +76,19 @@ func (h *HostNode) RunIpfs() error {
 
 }
 
-func (h *HostNode) routerDistribute(ctx context.Context, period time.Duration) {
+func (h *HostNode) keyTableDistribute(ctx context.Context, period time.Duration, errs chan<- error) {
 	ticker := time.NewTicker(time.Second * period)
-	for {
-		<-ticker.C
+	for range ticker.C {
 
-		// before routerdistributing
-		errNum := h.Serv.RouterDistribute()
-
-		if len(BootstrapNodes) != 0 {
-
-			// If the errNum > 33% of the sum of nodes,
-			// we regard this as the bad situation of network, then try again after 8 sec;
-			// if the errNum > 75% of the sum of nodes,
-			// we regard this as the fatal error of network, stop the ticker
-			if errNum > h.Router.Sum()/4*3 {
-				fmt.Println("fatal Network error")
-				fmt.Println("Please restart your server")
-				ticker.Stop()
-				return
-			} else if errNum > h.Router.Sum()/3 {
-				fmt.Println("Bad Network Situation")
-				time.Sleep(time.Second * (period / 2))
-				h.Serv.RouterDistribute()
-			}
+		errNum := h.Serv.KeyTableDistribute()
+		if errNum >= h.Router.Sum() {
+			errs <- err.KeyTableDistributeException
 		}
 
 		select {
 		case <-ctx.Done():
 			ticker.Stop()
+			close(errs)
 			return
 		default:
 		}
@@ -124,14 +108,16 @@ func (h *HostNode) autoPeriod(nodeNum int) time.Duration {
 	}
 }
 
-// RouterDistributeOn
+// KeyTableDistributeOn
 // The unit of argument `period` is second.
 // The argument `period` will be affective if `auto` is true,
 // and it'll be useless if `auto` is false.
-func (h *HostNode) RouterDistributeOn(auto bool, period int, ctx context.Context) {
+func (h *HostNode) KeyTableDistributeOn(auto bool, period int, ctx context.Context) <-chan error {
+	errs := make(chan error, 15)
 	if auto {
-		go h.routerDistribute(ctx, h.autoPeriod(h.Router.Sum()))
+		go h.keyTableDistribute(ctx, h.autoPeriod(h.Router.Sum()), errs)
 	} else {
-		go h.routerDistribute(ctx, time.Duration(period))
+		go h.keyTableDistribute(ctx, time.Duration(period), errs)
 	}
+	return errs
 }

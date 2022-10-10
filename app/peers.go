@@ -28,7 +28,7 @@ func PeersTab() fyne.CanvasObject {
 		list.ScrollToTop()
 	})
 	btnUP.Alignment = widget.ButtonAlignCenter
-	btnUP.Move(fyne.NewPos(1000, 470))
+	btnUP.Move(fyne.NewPos(1000, 60))
 	btnUP.Resize(fyne.NewSize(30, 20))
 
 	c.Add(lab)
