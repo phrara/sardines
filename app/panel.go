@@ -123,9 +123,8 @@ func search() fyne.CanvasObject {
 		}
 	})
 	combo.SetSelectedIndex(0)
-
 	e := widget.NewEntry()
-
+	
 	btnSearch := widget.NewButton("检索文件", func() {
 		if cancel != nil && hNode != nil {
 			words := e.Text

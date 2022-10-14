@@ -19,11 +19,14 @@ import (
 // BootstrapNodes 引导节点
 var BootstrapNodes []*tool.PeerNode
 
-func getBootstrapNodes(bn string) []*tool.PeerNode {
+func getBootstrapNodes(bn string) ([]*tool.PeerNode, error) {
 	bsn := make([]*tool.PeerNode, 0)
-	pn := tool.ParsePeerNode(bn)
+	pn, err1 := tool.ParsePeerNode(bn)
+	if err1 != nil {
+		return bsn, err1
+	}
 	bsn = append(bsn, pn)
-	return bsn
+	return bsn, nil
 }
 
 type HostNode struct {
@@ -59,7 +62,10 @@ func GenerateNode() (*HostNode, error) {
 	node.Ctx = context.Background()
 
 	// 初始化引导节点
-	BootstrapNodes = getBootstrapNodes(c.BootstrapNode)
+	BootstrapNodes, err2 = getBootstrapNodes(c.BootstrapNode)
+	if err2 != nil {
+		return nil, err2
+	}
 
 	// 获取节点
 	h, err := libp2p.New(

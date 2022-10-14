@@ -15,7 +15,7 @@ import (
 // This automatically renew the KeyTable info of the decentralized network
 
 func KeyTableDistributeHandler(s network.Stream) {
-	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
+	pn, _ := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	serv.router.AddNode(pn)
 
 	//fmt.Println("Get a distributed router table from", pn.String())

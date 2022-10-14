@@ -8,7 +8,7 @@ import (
 )
 
 func JoinApplyHandler(s network.Stream) {
-	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
+	pn, _ := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	// fmt.Println("receive a join application from", pn.String())
 
 	// 节点加入路由表

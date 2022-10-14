@@ -3,7 +3,6 @@ package service
 import (
 	"bufio"
 	"context"
-	"sardines/tool"
 	"fmt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -11,6 +10,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	"log"
 	"os"
+	"sardines/tool"
 )
 
 var s chan int
@@ -19,7 +19,7 @@ func ChatHandler(s network.Stream) {
 	log.Println("Got a new stream!")
 
 	// 将进行通话的节点加入路由表
-	pn := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
+	pn, _ := tool.ParsePeerNode(s.Conn().RemoteMultiaddr().String() + "/p2p/" + s.Conn().RemotePeer().String())
 	serv.router.AddNode(pn)
 
 	// Create a buffer stream for non blocking read and write.

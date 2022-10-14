@@ -27,20 +27,20 @@ func (p *PeerNode) ID() peer.ID {
 	return p.NodeInfo.ID
 }
 
-func ParsePeerNode(p string) *PeerNode {
+func ParsePeerNode(p string) (*PeerNode, error) {
 	if p == "" {
-		return nil
+		return nil, nil
 	}
-	addr, err := multiaddr.NewMultiaddr(p)
-	if err != nil {
-		return nil
+	addr, err1 := multiaddr.NewMultiaddr(p)
+	if err1 != nil {
+		return nil, err1
 	}
-	info, err := peer.AddrInfoFromP2pAddr(addr)
-	if err != nil {
-		return nil
+	info, err1 := peer.AddrInfoFromP2pAddr(addr)
+	if err1 != nil {
+		return nil, err1
 	}
 	return &PeerNode{
 		NodeInfo: info,
 		NodeAddr: addr,
-	}
+	}, nil
 }
