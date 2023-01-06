@@ -101,6 +101,15 @@ func (k *KeyTable) GetAllRaw() []byte {
 	return raw
 }
 
+func (k *KeyTable) GetAllKeys() []string {
+	km := k.GetAll()
+	keys := make([]string, 0, 15)
+	for key, _ := range km {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
 func (k *KeyTable) split(val []byte) []string {
 	if len(val) == 0 {
 		return nil

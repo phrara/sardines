@@ -16,21 +16,24 @@ import (
 )
 
 var (
-	cpath    string
-	kpath    string
-	Ktab     string
-	Dir      string
-	Manifest string
+	cpath     string
+	kpath     string
+	Ktab      string
+	Dir       string
+	Manifest  string
+	Downloads string
+	WD        string
 )
 
 func init() {
 	wd, _ := os.Getwd()
+	WD = wd
 	Dir = filepath.Join(wd, "/data")
 	kpath = filepath.Join(Dir, "/priv_key")
 	Ktab = filepath.Join(Dir, "/key_tab.db")
 	cpath = filepath.Join(Dir, "/config.json")
 	Manifest = filepath.Join(Dir, "/manifest.json")
-
+	Downloads = filepath.Join(wd, "/DownloadFiles")
 }
 
 type Config struct {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"sardines/core"
 	"sardines/err"
@@ -41,6 +40,8 @@ func btnOn() *widget.Button {
 		go Run(ctx, msg)
 		if b := <-msg; b {
 			turnOn(hNode.NodeAddr.String())
+		} else {
+			cancel = nil
 		}
 	})
 	btn.Alignment = widget.ButtonAlignCenter
@@ -73,28 +74,8 @@ func btnUpload() *widget.Button {
 	btn := widget.NewButton("上传文件", func() {
 
 		if cancel != nil && hNode != nil {
-			fileDialog := dialog.NewFileOpen(func(closer fyne.URIReadCloser, err2 error) {
-				if closer != nil {
-					p := closer.URI().Path()
-					o := closer.URI().Name()
-					content, e := tool.LoadFile(p)
-					if e != nil {
-						ShowErr(e)
-						return
-					}
-					file := tool.NewFileFromContent(o, content)
 
-					fid, k, e := hNode.UploadFile(file)
-					if e != nil {
-						ShowErr(e)
-						return
-					}
-					ShowData("上传成功", fid+":"+k)
-					fileTree.Refresh()
-				}
-			}, w)
-			fileDialog.Resize(fyne.NewSize(900, 600))
-			fileDialog.Show()
+			uploadWindow()
 
 		} else {
 			ShowErr(err.NodeNotStarted)
@@ -124,7 +105,7 @@ func search() fyne.CanvasObject {
 	})
 	combo.SetSelectedIndex(0)
 	e := widget.NewEntry()
-	
+
 	btnSearch := widget.NewButton("检索文件", func() {
 		if cancel != nil && hNode != nil {
 			words := e.Text
@@ -141,8 +122,11 @@ func search() fyne.CanvasObject {
 				}
 				files = append(files, f)
 			case KW:
-				files = hNode.SearchFileByKey(words)
-
+				f, err2 := hNode.SearchFileByKey(words)
+				if err2 != nil {
+					ShowErr(err2)
+				}
+				files = append(files, f...)
 			}
 
 			if files != nil && len(files) != 0 {
@@ -152,7 +136,7 @@ func search() fyne.CanvasObject {
 				subTab := container.NewDocTabs()
 
 				for i, file := range files {
-					tabItem := FileTab(i, file)
+					tabItem := FileTab(i, file, subWin)
 					subTab.Append(tabItem)
 				}
 

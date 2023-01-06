@@ -3,8 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"sardines/config"
 	"sardines/tool"
+	"strings"
 )
 
 var manifest map[string]string
@@ -101,4 +103,15 @@ func UpdateManifest(entry tool.Entry) error {
 
 func OriginalNameFromFID(fid string) string {
 	return manifest[fid]
+}
+
+// DownloadFile 下载文件
+func DownloadFile(file *tool.File) error {
+	name := strings.Split(file.Origin, ":")[0]
+	filePath := filepath.Join(config.Downloads, name)
+	er := tool.WriteFile(file.Content, filePath)
+	if er != nil {
+		return er
+	}
+	return nil
 }

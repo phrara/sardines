@@ -42,6 +42,14 @@ func (a *API) Download(hash string) ([]byte, error) {
 
 }
 
+func (a *API) GetReadCloser(hash string) (io.ReadCloser, error) {
+	rc, err := a.sh.Cat(hash)
+	if err != nil {
+		return nil, err
+	}
+	return rc, nil
+}
+
 func (a *API) List(hash string) ([]*FileList, error) {
 	ll, err := a.sh.List(hash)
 	if err != nil {

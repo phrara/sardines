@@ -36,7 +36,7 @@ func App() {
 	w = a.NewWindow("sardines")
 	w.Resize(fyne.Size{Width: 1280, Height: 720})
 	w.CenterOnScreen()
-	w.SetFixedSize(true)
+	//w.SetFixedSize(true)
 	w.SetIcon(icon)
 
 	c := container.NewWithoutLayout()

@@ -26,6 +26,11 @@ func main() {
 		return
 	}
 
+	if er := tool.CreateDir(config.Downloads); er != nil && er != err.DirExists {
+		Error(er)
+		return
+	}
+
 	app.App()
 
 	defer os.Unsetenv("FYNE_FONT")
