@@ -40,6 +40,9 @@ func (h *HostNode) UploadFile(filePath, name, index string) (string, error) {
 	if e != nil {
 		return "", e
 	}
+
+	fmt.Println("上传的倒排索引文件为：", indexID)
+
 	// update the keyTable
 	if b := h.Ktab.Append(indexID, []string{file.CID}); !b {
 		return "", err.KeyTableUpdateErr
@@ -100,9 +103,11 @@ func (h *HostNode) SearchFileByKey(kw string) ([]*tool.File, error) {
 		}
 
 		if b := se.NodeSearch(); b {
-			files = h.Ktab.Get(key)
+			file := h.Ktab.Get(key)
+			files = append(files, file...)
+			fmt.Println("匹配的倒排索引文件为：", key)
 			//fmt.Println(key, files)
-			break
+			//break
 		}
 	}
 
