@@ -3,6 +3,7 @@ package main
 import (
 	"golang.org/x/sys/windows"
 	"os"
+	"path/filepath"
 	"sardines/app"
 	"sardines/config"
 	"sardines/err"
@@ -27,6 +28,12 @@ func main() {
 	}
 
 	if er := tool.CreateDir(config.Downloads); er != nil && er != err.DirExists {
+		Error(er)
+		return
+	}
+
+	cypherPath := filepath.Join(config.WD, "UploadFiles")
+	if er := tool.CreateDir(cypherPath); er != nil && er != err.DirExists {
 		Error(er)
 		return
 	}
